@@ -1,7 +1,6 @@
 class Club:
-    def __init__(self, name, manager, players):
+    def __init__(self, name, players=[]):
         self.name = name
-        self.manager = manager
         self.players = players
 
     def get_overall_ability(self):
@@ -12,4 +11,11 @@ class Club:
 
     def pick_player(self, player):
         self.players.append(player)
-        player.set_club(self.name)
+
+
+Man_City = Club("Man City")
+Arsenal = Club("Arsenal")
+Liverpool = Club("Liverpool")
+Chelsea = Club("Chelsea")
+Man_United = Club("Man United")
+Spurs = Club("Spurs")

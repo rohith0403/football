@@ -15,6 +15,6 @@ import matplotlib.cm as cm
 #             writer.writerow([player.name, player.role, player.current_ability, player.shooting, player.passing, player.dribbling, player.defending])
 
 # Load data from CSV
-df = pd.read_csv('player_pool.csv')
-value_counts = df['Role'].value_counts()
+df = pd.read_csv("player_pool.csv")
+value_counts = df["Role"].value_counts()
 print(value_counts)

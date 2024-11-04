@@ -1,9 +1,9 @@
 class Player:
-    def __init__(self, name, role, current_ability):
+    def __init__(self, name, role, current_ability, club):
         self.name = name
         self.role = role
         self.current_ability = current_ability
-        self.club = ""
+        self.club = club
         self.set_attributes()
 
     def set_attributes(self):
