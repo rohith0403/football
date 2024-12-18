@@ -1,5 +1,7 @@
 import copy
 import numpy as np
+import random
+
 
 class League:
     def __init__(self, teams):
@@ -72,7 +74,9 @@ class League:
             team2.points += 1
             team1.add_match_result('D')
             team2.add_match_result('D')
-    
+
+        team1.add_fixture(goals_team1, goals_team2, team2.name, 'H')
+        team2.add_fixture(goals_team2, goals_team1, team1.name, 'A')
         self.update_league_table(team1)
         self.update_league_table(team2)
 
@@ -92,6 +96,7 @@ class League:
         Returns:
             list: A list where each round contains the match fixtures.
         """
+        random.shuffle(self.teams)  # Shuffle teams for random fixture generation
         num_teams = len(self.teams)
         schedule = []
 

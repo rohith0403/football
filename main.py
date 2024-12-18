@@ -87,7 +87,8 @@ if st.session_state.season_run:
         "Points": [],
         "Goals Scored": [],
         "Goals Conceded": [],
-        "Last Five": []
+        "Form": [],
+        "Last Fixture": []
     }
 
     for team, stats in selected_week_snapshot.items():
@@ -95,7 +96,8 @@ if st.session_state.season_run:
         league_table_df["Points"].append(stats["points"])
         league_table_df["Goals Scored"].append(stats["goals_scored"])
         league_table_df["Goals Conceded"].append(stats["goals_conceded"])
-        league_table_df["Last Five"].append(team.last_five)
+        league_table_df["Form"].append(team.last_five)
+        league_table_df["Last Fixture"].append(team.return_recent_fixture())
 
     # Display the league table for the selected game week
     st.dataframe(league_table_df)

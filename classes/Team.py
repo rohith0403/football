@@ -18,6 +18,7 @@ class Team:
         self.losses = 0
         self.goals_for = 0
         self.goals_against = 0
+        self.fixtures_played = []
 
     def __repr__(self):
         return f"Team(name={self.name}, offense={self.offense}, defense = {self.defense}, last_five={self.last_five})"
@@ -26,3 +27,21 @@ class Team:
         self.last_five.append(result)
         if len(self.last_five) > 5:
             self.last_five = self.last_five[1:]
+    
+    def add_fixture(self, scored, against, opponent, place):
+        self.fixtures_played.append([scored, against, opponent, place])
+
+    def return_recent_fixture(self):
+        """
+        Return the most recent fixture's result as a formatted string.
+
+        :return: str, formatted recent fixture or a message if no fixtures played
+        """
+        if not self.fixtures_played:
+            return f"No fixtures played for {self.name} yet."
+        
+        scored, against, opponent, place = self.fixtures_played[-1]
+        if place == 'H':
+            return f"{self.name}   {scored}  -  {against}   {opponent}"
+        elif place == 'A':
+            return f"{opponent}   {against}  -  {scored}   {self.name}"
