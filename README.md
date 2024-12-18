@@ -1,2 +1,0 @@
-# football
- Football simulator project
