@@ -2,10 +2,19 @@ import random
 
 import numpy as np
 
-from db.store import save_league_history_to_db
+from db.store import save_league_history_to_season_table, update_teams_in_season_table
 
 
 def team_to_dict(team):
+    """
+    Converts a Team object to a dictionary representation.
+
+    Args:
+        team (Team): A team object.
+
+    Returns:
+        dict: A dictionary containing team attributes.
+    """
     return {
         "name": team.name,
         "points": team.points,
@@ -14,62 +23,93 @@ def team_to_dict(team):
         "losses": team.losses,
         "goals_scored": team.goals_scored,
         "goals_against": team.goals_against,
+        "goal_difference": team.goals_scored - team.goals_against,
         "form": team.form,
         "fixtures_played": team.fixtures_played,
     }
 
 
 class League:
+    """
+    Represents a football league with teams, fixtures, and results.
+
+    Attributes:
+        teams (list): List of Team objects in the league.
+        league_table (list): Sorted list of teams in the league table.
+        fixtures (list): List of scheduled fixtures.
+    """
+
     def __init__(self, teams):
-        self.teams = teams  # List of team names
-        self.league_table = {team for team in teams}
+        """
+        Initializes the League with a list of teams.
+
+        Args:
+            teams (list): List of Team objects.
+        """
+        self.teams = teams
+        self.league_table = sorted(teams, key=lambda team: team.name)
         self.fixtures = self.create_fixtures()
 
+    @staticmethod
     def calculate_adjusted_means(
-        self, teamA, teamB, base_home_mean=1.7, base_away_mean=1.2, max_mean=3.0
+        team_a, team_b, base_home_mean=1.7, base_away_mean=1.2, max_mean=3.0
     ):
-        # Calculate offense-defense differences
-        home_offense_vs_away_defense = teamA.offense - teamB.defense
-        away_offense_vs_home_defense = teamB.offense - teamA.defense
+        """
+        Calculates adjusted mean goals for home and away teams.
 
-        # Nonlinear scaling for offense-defense difference
-        home_scaling_factor = max(0.1, 1 + np.tanh(0.03 * home_offense_vs_away_defense))
-        away_scaling_factor = max(0.1, 1 + np.tanh(0.03 * away_offense_vs_home_defense))
+        Args:
+            team_a (Team): Home team.
+            team_b (Team): Away team.
+            base_home_mean (float): Base mean for home goals.
+            base_away_mean (float): Base mean for away goals.
+            max_mean (float): Maximum allowed mean value.
 
-        # Closeness factor to reduce scoring for evenly matched teams
-        closeness_factor = max(
+        Returns:
+            tuple: Adjusted means for home and away goals.
+        """
+        home_vs_away = team_a.offense - team_b.defense
+        away_vs_home = team_b.offense - team_a.defense
+
+        home_factor = max(0.1, 1 + np.tanh(0.03 * home_vs_away))
+        away_factor = max(0.1, 1 + np.tanh(0.03 * away_vs_home))
+
+        closeness = max(
             0.5,
             1
-            - 0.02 * abs(teamA.offense - teamB.offense)
-            - 0.02 * abs(teamA.defense - teamB.defense),
+            - 0.02 * abs(team_a.offense - team_b.offense)
+            - 0.02 * abs(team_a.defense - team_b.defense),
         )
 
-        # Adjust means with closeness and cap the maximum mean
-        adjusted_home_mean = min(
-            max_mean, max(0, base_home_mean * home_scaling_factor * closeness_factor)
-        )
-        adjusted_away_mean = min(
-            max_mean, max(0, base_away_mean * away_scaling_factor * closeness_factor)
-        )
+        home_mean = min(max_mean, base_home_mean * home_factor * closeness)
+        away_mean = min(max_mean, base_away_mean * away_factor * closeness)
 
-        return adjusted_home_mean, adjusted_away_mean
+        return home_mean, away_mean
 
-    def predict_outcome(self, teamA, teamB):
-        home_mean, away_mean = self.calculate_adjusted_means(teamA, teamB)
-        home_goals = np.random.poisson(home_mean)
-        away_goals = np.random.poisson(away_mean)
-        if home_goals > away_goals:
-            return [home_goals, away_goals]
-        elif home_goals < away_goals:
-            return [home_goals, away_goals]
-        else:
-            return [home_goals, away_goals]
+    def predict_outcome(self, team_a, team_b):
+        """
+        Predicts the match outcome between two teams.
 
-    # Update scoreboard
+        Args:
+            team_a (Team): Home team.
+            team_b (Team): Away team.
+
+        Returns:
+            tuple: Predicted goals for home and away teams.
+        """
+        home_mean, away_mean = self.calculate_adjusted_means(team_a, team_b)
+        return np.random.poisson(home_mean), np.random.poisson(away_mean)
+
     def play_match(self, team1, team2):
-        """Simulate a match and return results (goals and points)."""
+        """
+        Plays a match between two teams and updates their stats.
+
+        Args:
+            team1 (Team): First team (home).
+            team2 (Team): Second team (away).
+        """
         goals_team1, goals_team2 = self.predict_outcome(team1, team2)
 
+        # Update team stats
         team1.goals_scored += goals_team1
         team1.goals_against += goals_team2
         team2.goals_scored += goals_team2
@@ -101,70 +141,75 @@ class League:
 
     def generate_fixtures(self):
         """
-        Generate a round-robin schedule for a given list of teams,
-        ensuring each team plays every other team twice (home and away).
+        Generates a round-robin schedule for the league.
 
         Returns:
-            list: A list where each round contains the match fixtures.
+            list: List of fixtures.
         """
-        random.shuffle(self.teams)  # Shuffle teams for random fixture generation
+        random.shuffle(self.teams)
         num_teams = len(self.teams)
         schedule = []
 
-        # Generate home and away fixtures by pairing teams
         for round_num in range(num_teams - 1):
-            round_matches = []
-            for i in range(num_teams // 2):
-                home = self.teams[i]
-                away = self.teams[num_teams - 1 - i]
-                round_matches.append((home, away))
-            schedule.append(round_matches)
-            # Rotate teams to create the next round's matches
-            self.teams = [self.teams[0]] + [self.teams[-1]] + self.teams[1:-1]
+            matches = [
+                (self.teams[i], self.teams[num_teams - 1 - i])
+                for i in range(num_teams // 2)
+            ]
+            schedule.append(matches)
+            self.teams = [self.teams[0]] + self.teams[-1:] + self.teams[1:-1]
 
-        # Duplicate the schedule to create home and away fixtures
-        return schedule + [list(reversed(round)) for round in schedule]
+        return schedule + [list(reversed(round_matches)) for round_matches in schedule]
 
     def balance_home_away(self, schedule):
         """
-        Balances home and away fixtures for fairness.
+        Balances home and away matches in the schedule.
 
         Args:
-            schedule (list): List of rounds with fixtures.
+            schedule (list): Raw schedule.
 
         Returns:
-            list: Balanced schedule with alternating home and away games.
+            list: Balanced schedule.
         """
-        balanced_schedule = []
-        for i, round_matches in enumerate(schedule):
-            if i % 2 == 0:
-                balanced_schedule.append(round_matches)
-            else:
-                # Swap home and away teams for alternating rounds
-                balanced_schedule.append([(away, home) for home, away in round_matches])
-        return balanced_schedule
+        return [
+            (
+                round_matches
+                if i % 2 == 0
+                else [(away, home) for home, away in round_matches]
+            )
+            for i, round_matches in enumerate(schedule)
+        ]
 
     def create_fixtures(self):
-        # Generate initial schedule
+        """
+        Creates a balanced fixture schedule.
+
+        Returns:
+            list: Balanced fixtures.
+        """
         raw_schedule = self.generate_fixtures()
+        return self.balance_home_away(raw_schedule)
 
-        # Balance home and away fixtures
-        final_schedule = self.balance_home_away(raw_schedule)
-        return final_schedule
+    def play_game_week(self, season_id):
+        """
+        Plays a single game week and updates league history.
 
-    def play_game_week(self):
-        """Simulate one game week."""
-        game_week_fixtures = self.fixtures[0]  # The first round's fixtures
-        for match in game_week_fixtures:
-            self.play_match(*match)
-        # Remove the fixtures that were played
-        self.fixtures = self.fixtures[1:]
+        Args:
+            season_id (int): The ID of the current season.
+        """
+        game_week_fixtures = self.fixtures.pop(0)
+        for home, away in game_week_fixtures:
+            self.play_match(home, away)
 
-        # Store a snapshot of the league table
         league_snapshot = [team_to_dict(team) for team in self.teams]
-        save_league_history_to_db(league_snapshot)
+        save_league_history_to_season_table(league_snapshot, season_id)
 
-    def run_season(self):
-        """Run a full season."""
+    def run_season(self, season_id):
+        """
+        Runs the full league season, playing all fixtures.
+
+        Args:
+            season_id (int): The ID of the current season.
+        """
         while self.fixtures:
-            self.play_game_week()
+            self.play_game_week(season_id)
+        update_teams_in_season_table(self.teams, season_id)

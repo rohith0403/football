@@ -1,4 +1,8 @@
 class Team:
+    """
+    Team class
+    """
+
     def __init__(
         self,
         variable_name,
@@ -38,11 +42,17 @@ class Team:
         return f"Team(name={self.name}, offense={self.offense}, defense = {self.defense}, form={self.form})"
 
     def add_match_result(self, result):
+        """
+        Adds match result to form
+        """
         self.form.append(result)
         if len(self.form) > 5:
             self.form = self.form[1:]
 
     def add_fixture(self, scored, against, opponent, place):
+        """
+        Add played fixtures to fixtures played
+        """
         self.fixtures_played.append([scored, against, opponent, place])
 
     def return_recent_fixture(self):

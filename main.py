@@ -1,32 +1,59 @@
-import json
-
 import pandas as pd
 import streamlit as st
 
 from classes.League import League
-from classes.Team import Team
-from db.store import create_tables, fetch_league_table, fetch_teams_from_db, wipe_db
-from setup_db import initalize_teams
+from db.store import (
+    create_new_season,
+    create_tables,
+    fetch_league_history_from_season_table,
+    fetch_season_id,
+    fetch_teams_from_season_table,
+    update_offense_defense_ratings_for_new_season,
+    wipe_season_data,
+)
+from setup_db import initialize_teams
 
 
 # Function to refresh the database
-def refresh_tables():
-    wipe_db()
+def initialize_db():
+    """
+    Refreshes the database
+    """
+    wipe_season_data()
     create_tables()
-    initalize_teams()
+    initialize_teams()
 
 
 # Initialize Streamlit app
 st.title("Football League Simulation")
 
 # Add "Refresh DB" button
-if st.button("Refresh DB"):
-    refresh_tables()
+if st.button("Initialize DB"):
+    initialize_db()
     st.session_state.clear()  # Clear session state to reset the app
-    st.success("Database refreshed successfully. Reload the page to reinitialize.")
+    st.success("Database Initialized.")
+
+# Add "Generate New season" button
+if st.button("Generate new season"):
+    create_new_season()
+    new_season_id = fetch_season_id()
+    update_offense_defense_ratings_for_new_season(new_season_id - 1, new_season_id)
+    st.success("Generated a new season.")
+
+    # Reinitialize the League object after generating a new season
+    teams = fetch_teams_from_season_table(new_season_id)
+    st.session_state.league = League(
+        teams
+    )  # Reinitialize the league for the new season
+
+    # Reset season_run flag
+    st.session_state.season_run = False
+
+
+current_season_id = fetch_season_id()
 
 # Fetch teams only after the DB is refreshed
-teams = fetch_teams_from_db()
+teams = fetch_teams_from_season_table(current_season_id)
 
 # Initialize League only once
 if "league" not in st.session_state:
@@ -36,27 +63,44 @@ if "league" not in st.session_state:
 if "season_run" not in st.session_state:
     st.session_state.season_run = False
 
-if st.button("Run Full Season") and not st.session_state.season_run:
-    st.session_state.league.run_season()  # Run the season and store results in session state
+if st.button(f"Run Season {current_season_id}") and not st.session_state.season_run:
+    st.session_state.league.run_season(
+        current_season_id
+    )  # Run the season and store results in session state
     st.session_state.season_run = True  # Mark the season as run to prevent rerun
 
 # Display the final league table as an interactive table
 if st.session_state.season_run:
-    st.subheader("Final League Table")
-    all_tables = fetch_league_table()
+    st.subheader("League Table")
+
+    season_options = [f"Season {i+1}" for i in range(current_season_id)]
+
+    # Dropdown to select the season
+    selected_season = st.selectbox(
+        "Select Season",
+        options=season_options,
+        index=current_season_id - 1,  # Default to the latest season
+    )
+
+    # Get the selected season's index
+    selected_season_index = season_options.index(selected_season) + 1
+
+    # Get the selected season's data
+    selected_season_data = fetch_league_history_from_season_table(selected_season_index)
+
     # Add a slider to select the game week
-    total_gameweeks = len(all_tables)
+    TOTAL_GAMEWEEKS = len(selected_season_data)
     gameweek_slider = st.slider(
         "Select Game Week",
         min_value=1,
-        max_value=total_gameweeks,
-        value=total_gameweeks,
+        max_value=TOTAL_GAMEWEEKS,
+        value=TOTAL_GAMEWEEKS,
         step=1,
         format="Game Week %d",
     )
 
     # Get the selected game week snapshot
-    selected_week_snapshot = all_tables[gameweek_slider - 1]  # Slider is 1-indexed
+    selected_week_snapshot = selected_season_data[gameweek_slider - 1]
 
     # Prepare the data for the league table
     league_table_df = {
