@@ -3,7 +3,9 @@ from db.store import create_new_season, save_teams_to_season_table
 
 
 def initialize_teams():
-    # Initialize teams
+    """
+    Initialize teams
+    """
     teams = [
         Team("liverpool", "Liverpool", 82.9, 99.0),
         Team("chelsea", "Chelsea", 99.0, 67.7),

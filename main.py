@@ -48,6 +48,7 @@ if st.button("Generate new season"):
 
     # Reset season_run flag
     st.session_state.season_run = False
+    st.session_state.show_run_season_button = True  # Show the Run Season button again
 
 
 current_season_id = fetch_season_id()
@@ -59,15 +60,22 @@ teams = fetch_teams_from_season_table(current_season_id)
 if "league" not in st.session_state:
     st.session_state.league = League(teams)
 
+# Initialize show_run_season_button in session state
+if "show_run_season_button" not in st.session_state:
+    st.session_state.show_run_season_button = True
+
 # Run season button (this will only run once when clicked)
 if "season_run" not in st.session_state:
     st.session_state.season_run = False
 
-if st.button(f"Run Season {current_season_id}") and not st.session_state.season_run:
-    st.session_state.league.run_season(
-        current_season_id
-    )  # Run the season and store results in session state
-    st.session_state.season_run = True  # Mark the season as run to prevent rerun
+# Run season button (visible only when show_run_season_button is True)
+if st.session_state.show_run_season_button:
+    if st.button(f"Run Season {current_season_id}") and not st.session_state.season_run:
+        st.session_state.league.run_season(
+            current_season_id
+        )  # Run the season and store results in session state
+        st.session_state.season_run = True  # Mark the season as run to prevent rerun
+        st.session_state.show_run_season_button = False  # Hide the Run Season button
 
 # Display the final league table as an interactive table
 if st.session_state.season_run:
@@ -112,6 +120,7 @@ if st.session_state.season_run:
         "Goals Scored": [],
         "Goals Conceded": [],
         "Form": [],
+        "Budget": [],
         # "Last Fixture": [],
     }
     for team in selected_week_snapshot:
@@ -123,9 +132,14 @@ if st.session_state.season_run:
         league_table_df["Goals Scored"].append(team["goals_scored"])
         league_table_df["Goals Conceded"].append(team["goals_against"])
         league_table_df["Form"].append(team["form"])
+        league_table_df["Budget"].append(team["budget"])
         # league_table_df["Last Fixture"].append(team.return_recent_fixture())
 
     league_table_df = pd.DataFrame(league_table_df)
+
+    league_table_df = league_table_df.sort_values(
+        by="Points", ascending=False
+    ).reset_index(drop=True)
 
     # Display the league table for the selected game week
     st.dataframe(league_table_df, use_container_width=True)

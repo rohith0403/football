@@ -97,6 +97,7 @@ def save_teams_to_season_table(teams, season_id):
                 losses INTEGER DEFAULT 0,
                 goals_scored INTEGER DEFAULT 0,
                 goals_conceded INTEGER DEFAULT 0,
+                budget INTEGER,
                 form TEXT,
                 fixtures_played TEXT
             )
@@ -116,9 +117,10 @@ def save_teams_to_season_table(teams, season_id):
                     losses,
                     goals_scored,
                     goals_conceded,
+                    budget,
                     form,
                     fixtures_played
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     team.variable_name,
@@ -131,6 +133,7 @@ def save_teams_to_season_table(teams, season_id):
                     team.losses,
                     team.goals_scored,
                     team.goals_against,
+                    team.budget,
                     json.dumps(team.form),
                     json.dumps(team.fixtures_played),
                 ),
@@ -165,9 +168,10 @@ def update_teams_in_season_table(teams, season_id):
                     losses,
                     goals_scored,
                     goals_conceded,
+                    budget,
                     form,
                     fixtures_played
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     team.variable_name,
@@ -180,6 +184,7 @@ def update_teams_in_season_table(teams, season_id):
                     team.losses,
                     team.goals_scored,
                     team.goals_against,
+                    team.budget,
                     json.dumps(team.form),
                     json.dumps(team.fixtures_played),
                 ),
@@ -215,9 +220,11 @@ def fetch_teams_from_season_table(season_id):
                     losses=row[8],
                     goals_scored=row[9],
                     goals_against=row[10],
+                    budget=row[11],
                 )
-                team.form = json.loads(row[11])
-                team.fixtures_played = json.loads(row[12])
+                team.form = json.loads(row[12])
+                team.fixtures_played = json.loads(row[13])
+
                 teams.append(team)
         except sqlite3.Error as error:
             LOGGER.error("Error fetching teams from teams table: %s", error)
@@ -299,6 +306,7 @@ def create_tables_for_new_season(season_id):
                 losses INTEGER DEFAULT 0,
                 goals_scored INTEGER DEFAULT 0,
                 goals_conceded INTEGER DEFAULT 0,
+                budget INTEGER,
                 form TEXT,
                 fixtures_played TEXT
             )
@@ -324,7 +332,6 @@ def wipe_season_data():
         try:
             max_season_id = fetch_season_id()
             for season_id in range(1, max_season_id + 1):
-                print(season_id)
                 cursor.execute(f"DROP TABLE IF EXISTS teams_season{season_id}")
                 cursor.execute(f"DROP TABLE IF EXISTS gameweeks_season{season_id}")
             cursor.execute("DROP TABLE IF EXISTS seasons")
@@ -349,7 +356,6 @@ def update_offense_defense_ratings_for_new_season(current_season_id, new_season_
         calculated_offense_rating = round(
             (team.goals_scored / max_goals_scored) * 99, 2
         )
-        print(calculated_offense_rating)
         new_offense_rating = (team.offense + calculated_offense_rating) / 2
 
         # Calculate the new defense rating
@@ -360,6 +366,7 @@ def update_offense_defense_ratings_for_new_season(current_season_id, new_season_
             team.name,
             new_offense_rating,
             new_defense_rating,
+            budget=team.budget,
         )
         new_teams.append(new_team)
         save_teams_to_season_table(new_teams, new_season_id)

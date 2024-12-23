@@ -17,6 +17,7 @@ class Team:
         goals_against=0,
         form=[],
         fixtures_played=[],
+        budget=100,
     ):
         """
         Initialize a team with a name, ability, and recent form.
@@ -37,6 +38,7 @@ class Team:
         self.goals_scored = goals_scored
         self.goals_against = goals_against
         self.fixtures_played = fixtures_played
+        self.budget = budget
 
     def __repr__(self):
         return f"Team(name={self.name}, offense={self.offense}, defense = {self.defense}, form={self.form})"

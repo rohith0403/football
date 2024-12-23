@@ -26,6 +26,7 @@ def team_to_dict(team):
         "goal_difference": team.goals_scored - team.goals_against,
         "form": team.form,
         "fixtures_played": team.fixtures_played,
+        "budget": team.budget,
     }
 
 
@@ -212,4 +213,29 @@ class League:
         """
         while self.fixtures:
             self.play_game_week(season_id)
+        self.allot_prize_money()
         update_teams_in_season_table(self.teams, season_id)
+
+    def allot_prize_money(self):
+        """
+        Allot prize money after each season
+        """
+        (self.teams).sort(key=lambda team: team.points, reverse=True)
+        (self.teams)[0].budget += 100
+        (self.teams)[1].budget += 80
+        (self.teams)[2].budget += 70
+        (self.teams)[3].budget += 60
+        (self.teams)[4].budget += 50
+        (self.teams)[5].budget += 50
+        (self.teams)[6].budget += 50
+        (self.teams)[7].budget += 50
+        (self.teams)[8].budget += 50
+        (self.teams)[9].budget += 50
+        (self.teams)[10].budget += 40
+        (self.teams)[11].budget += 40
+        (self.teams)[12].budget += 40
+        (self.teams)[13].budget += 40
+        (self.teams)[14].budget += 30
+        (self.teams)[15].budget += 30
+        (self.teams)[16].budget += 30
+        (self.teams)[17].budget += 30
