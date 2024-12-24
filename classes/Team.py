@@ -43,6 +43,25 @@ class Team:
     def __repr__(self):
         return f"Team(name={self.name}, offense={self.offense}, defense = {self.defense}, form={self.form})"
 
+    def form_factor(self):
+        """
+        Calculate the influence of form on the team's performance.
+        A good form (more 'W') increases the team's strength.
+
+        Returns:
+            float: A multiplier for the team's performance.
+        """
+        if not self.form:
+            return 1.0  # Neutral factor if no form data exists
+
+        # Calculate form score: +2 for 'W', -1 for 'L', 0 for 'D'
+        form_score = sum(
+            2 if result == "W" else -1 if result == "L" else 0 for result in self.form
+        )
+
+        # Normalize form factor: range ~ [0.9, 1.2]
+        return 1 + 0.01 * form_score
+
     def add_match_result(self, result):
         """
         Adds match result to form
