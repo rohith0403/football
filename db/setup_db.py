@@ -1,8 +1,8 @@
 from classes.Team import Team
-from db.store import create_new_season, save_teams_to_season_table
+from db.store import save_teams_to_season_table
 
 
-def initialize_teams():
+def initialize_teams(season_id):
     """
     Initialize teams
     """
@@ -29,17 +29,9 @@ def initialize_teams():
         Team("southampton", "Southampton", 26.8, 35.8),
     ]
 
-    # Create a new season and get the season ID
-    season_id = create_new_season()
-
     # Save teams to the season-specific table
     save_teams_to_season_table(teams, season_id)
 
     print(
         f"Teams have been successfully stored in the database for season {season_id}."
     )
-
-
-# Example usage
-if __name__ == "__main__":
-    initialize_teams()

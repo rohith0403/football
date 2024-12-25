@@ -69,7 +69,7 @@ def fetch_season_id():
             return result[0]
         except sqlite3.Error as error:
             LOGGER.error("Error fetching season id from season table: %s", error)
-    return 1
+    return 0
 
 
 def save_teams_to_season_table(teams, season_id):
