@@ -2,9 +2,12 @@
 
 import json
 import logging
+import random
 import sqlite3
 
+from classes.Player import Player
 from classes.Team import Team
+from models.models import GK, Attributes, Intrinsic, Mental, Physical, Technical
 
 # Constants
 DB_FILE = "league_simulation.db"
@@ -32,6 +35,23 @@ def create_tables():
             CREATE TABLE IF NOT EXISTS seasons (
                 id INTEGER PRIMARY KEY AUTOINCREMENT
             )
+            """
+        )
+        cursor.execute(
+            """
+        CREATE TABLE IF NOT EXISTS PlayerPool (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            age INTEGER,
+            nationalities TEXT,
+            potential_ability INTEGER,
+            team TEXT,
+            price REAL,
+            attributes TEXT, -- JSON string for nested Pydantic object
+            position TEXT,
+            stats TEXT,
+            form TEXT
+        )
             """
         )
         conn.commit()
@@ -229,6 +249,139 @@ def fetch_teams_from_season_table(season_id):
         except sqlite3.Error as error:
             LOGGER.error("Error fetching teams from teams table: %s", error)
     return teams
+
+
+def insert_into_player_pool(player):
+    """
+    Insert a player into the PlayerPool table in SQLite3.
+
+    :param player: Player object to be inserted.
+    :param db_path: Path to the SQLite database file.
+    """
+
+    serial_id = f"#{random.randint(0, 999999):06d}"
+
+    # Prepare player data for insertion
+    player_data = (
+        serial_id,
+        player.name,
+        player.age,
+        json.dumps(player.nationalities),  # Store nationalities as JSON
+        player.pot_ability,
+        player.team,
+        player.price,
+        json.dumps(player.attributes.json()),  # Store attributes as JSON
+        player.position,
+        json.dumps(player.stats),  # Store stats as JSON
+        player.form,
+    )
+    with get_db_connection() as conn:
+        # Insert data into the table
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+        INSERT INTO PlayerPool (
+            id, name, age, nationalities, potential_ability, team, price,
+            attributes, position, stats, form
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            player_data,
+        )
+
+        conn.commit()
+
+
+def fetch_players_from_pool():
+    """
+    Fetch all players from the PlayerPool table in SQLite3.
+
+    :param db_path: Path to the SQLite database file.
+    :return: List of player records as dictionaries.
+    """
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        try:
+
+            # Fetch all rows from the table
+            cursor.execute("SELECT * FROM PlayerPool")
+            rows = cursor.fetchall()
+            # Convert rows to a list of dictionaries
+            players = []
+            for row in rows:
+                players.append(
+                    {
+                        "id": row[0],
+                        "name": row[1],
+                        "age": row[2],
+                        "nationalities": json.loads(row[3]),
+                        "potential_ability": row[4],
+                        "team": row[5],
+                        "price": row[6],
+                        "attributes": json.loads(row[7]),
+                        "position": row[8],
+                        "stats": json.loads(row[9]),
+                        "form": row[10],
+                    }
+                )
+        except sqlite3.Error as error:
+            LOGGER.error("Error fetching players from players table: %s", error)
+    return players
+
+
+def fetch_player_by_id(player_id: str, attributes_model=Attributes):
+    """
+    Fetch a single player from the PlayerPool table by their unique ID.
+
+    :param player_id: The unique ID of the player to fetch.
+    :param db_path: Path to the SQLite database file.
+    :param attributes_model: Pydantic model class for attributes deserialization.
+    :return: A dictionary representing the player or None if not found.
+    """
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        try:
+            # Fetch the player by ID
+            cursor.execute("SELECT * FROM PlayerPool WHERE id = ?", (player_id,))
+            row = cursor.fetchone()
+
+            if not row:
+                conn.close()
+                return None  # Player not found
+
+            raw_json = row[7]  # This is the JSON string from the DB
+            attributes = None
+            if attributes_model:
+                # Step 1: Convert JSON string to dictionary
+                attributes_json = json.loads(raw_json)  # First decode
+                attributes_dict = json.loads(attributes_json)  # Second decode
+                # attributes = Attributes(
+                #     technical=Technical(attributes_dict["technical"]),
+                #     mental=Mental(attributes_dict["technical"]),
+                #     physical=Physical(attributes_dict["technical"]),
+                #     gk=GK(attributes_dict["technical"]),
+                #     intrinsic=Intrinsic(attributes_dict["technical"]),
+                # )
+                # Step 2: Validate the dictionary with the Pydantic model
+                attributes = attributes_model.model_validate(attributes_dict)
+            else:
+                attributes = json.loads(attributes_json)
+            # Convert the row to a dictionary
+            player = Player(
+                name=row[1],
+                age=row[2],
+                nationalities=json.loads(row[3]),
+                pot_ability=row[4],
+                team=row[5],
+                price=row[6],
+                attributes=attributes,  # Pydantic model or dict
+                position=row[8],
+                stats=json.loads(row[9]),
+                form=row[10],
+            )
+        except sqlite3.Error as error:
+            LOGGER.error("Error fetching player from players table via id: %s", error)
+    return player
 
 
 def save_league_history_to_season_table(snapshot, season_id):

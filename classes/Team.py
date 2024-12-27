@@ -96,3 +96,21 @@ class Team:
     def assign_player(self, player):
         """Called when a player is assigned to this team"""
         self.players.append(player)
+
+    def buy_player(self, player, price):
+        """Buying a player"""
+        if player.team:
+            selling_team = player.team
+            selling_team.budget += price
+        self.budget -= price
+        self.assign_player(player)
+        player.assign_team(self)
+
+    def sell_player(self, player, price):
+        """Selling a player"""
+        if player.team:
+            selling_team = player.team
+            selling_team.budget += price
+        self.budget -= price
+        self.assign_player(player)
+        player.assign_team(self)

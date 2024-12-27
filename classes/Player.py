@@ -1,17 +1,21 @@
+from models.models import Attributes
+
+
 class Player:
     """Player class"""
 
     def __init__(
         self,
-        name,
-        age,
-        nationalities,
-        pot_ability,
-        team,
-        price,
-        attributes,
-        stats,
-        form,
+        name: str,
+        age: int,
+        nationalities: list[str],
+        pot_ability: int,
+        attributes: Attributes,
+        position=None,
+        team=None,
+        price=100,
+        stats=None,
+        form=None,
     ):
         self.name = name
         self.age = age
@@ -19,16 +23,21 @@ class Player:
         self.pot_ability = pot_ability
         self.team = team
         self.price = price
-        self.stats = stats
-        self.form = form
         self.attributes = attributes
-        self.position = self.calculate_best_position()
+        if position is None:
+            self.position = self.calculate_best_position()
+        else:
+            self.position = position
+        if stats is None:
+            self.stats = []
+        if form is None:
+            self.form = None
 
-    def assign_team(self, team_name):
+    def assign_team(self, team):
         """
         Assign team to a player
         """
-        self.team = team_name
+        self.team = team
 
     def update_age(self):
         """
@@ -49,7 +58,7 @@ class Player:
         self.price = new_price
 
     def calculate_best_position(self) -> str:
-        # All attributes
+        """Get the best position of player"""
         all_technical = [
             self.attributes.technical.Corners,
             self.attributes.technical.Crossing,
@@ -83,7 +92,6 @@ class Player:
             self.attributes.mental.WorkRate,
         ]
         all_physical = [
-            self.attributes.physical.Physical,
             self.attributes.physical.Acceleration,
             self.attributes.physical.Agility,
             self.attributes.physical.Balance,

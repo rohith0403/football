@@ -36,7 +36,6 @@ class Mental(BaseModel):
 
 
 class Physical(BaseModel):
-    Physical: int = Field(..., ge=1, le=20)
     Acceleration: int = Field(..., ge=1, le=20)
     Agility: int = Field(..., ge=1, le=20)
     Balance: int = Field(..., ge=1, le=20)
