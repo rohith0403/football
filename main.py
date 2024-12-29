@@ -237,9 +237,8 @@ with tabs[1]:  # Player tab
                 selected_player = fetch_player_by_id(filtered_players["ID"].tolist()[0])
                 st.session_state.selected_player = selected_player
 
-        col1, col2, col3, col4 = st.columns(4)
-
         if st.session_state.selected_player:
+            col1, col2, col3 = st.columns(3)
             with col1:
                 st.subheader("Technical Attributes")
                 st.dataframe(
@@ -256,15 +255,16 @@ with tabs[1]:  # Player tab
                 st.dataframe(
                     st.session_state.selected_player.attributes.physical.model_dump()
                 )
-            with col4:
+            col1, col2 = st.columns(2)
+            with col1:
                 st.subheader("Gk Attributes")
                 st.dataframe(
                     st.session_state.selected_player.attributes.gk.model_dump()
                 )
-
-            st.subheader("Intrinsic Attributes")
-            st.dataframe(
-                st.session_state.selected_player.attributes.intrinsic.model_dump()
-            )
+            with col2:
+                st.subheader("Intrinsic Attributes")
+                st.dataframe(
+                    st.session_state.selected_player.attributes.intrinsic.model_dump()
+                )
         else:
             st.warning("No players match your search criteria.")

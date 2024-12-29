@@ -1,3 +1,4 @@
 env
 .devdbrc
 league_simulation.db
+__pycache__
