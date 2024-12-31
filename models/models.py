@@ -55,14 +55,13 @@ class GK(BaseModel):
 
 
 class Intrinsic(BaseModel):
-    Confidence: int = Field(..., ge=1, le=20)
-    Consistency: int = Field(..., ge=1, le=20)
-    Proffesionalism: int = Field(..., ge=1, le=20)
-    BigGamePlayer: int = Field(..., ge=1, le=20)
-    Loyalty: int = Field(..., ge=1, le=20)
-    Versatility: int = Field(..., ge=1, le=20)
-    CareerAmbition: int = Field(..., ge=1, le=20)
-    MoneyAmbition: int = Field(..., ge=1, le=20)
+    Confidence: int = Field(..., ge=1, le=20)  # Ability to get out of a slump
+    Consistency: int = Field(..., ge=1, le=20)  # Ability to continue good form
+    Proffesionalism: int = Field(..., ge=1, le=20)  # Ability to be proffessional
+    BigGamePlayer: int = Field(..., ge=1, le=20)  # Ability to perform in big games
+    Loyalty: int = Field(..., ge=1, le=20)  # Loyalty to club or nation
+    CareerAmbition: int = Field(..., ge=1, le=20)  # Lust for Trophy
+    MoneyAmbition: int = Field(..., ge=1, le=20)  # Lust for money
 
 
 class Attributes(BaseModel):

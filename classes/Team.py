@@ -18,7 +18,7 @@ class Team:
         form=[],
         fixtures_played=[],
         budget=2500,
-        players=[],
+        roster=None,
     ):
         """
         Initialize a team with a name, ability, and recent form.
@@ -40,7 +40,10 @@ class Team:
         self.goals_against = goals_against
         self.fixtures_played = fixtures_played
         self.budget = budget
-        self.players = players
+        if roster is None:
+            self.roster = []
+        else:
+            self.roster = roster
 
     def __repr__(self):
         return f"Team(name={self.name}, offense={self.offense}, defense = {self.defense}, form={self.form})"
@@ -95,7 +98,7 @@ class Team:
 
     def assign_player(self, player):
         """Called when a player is assigned to this team"""
-        self.players.append(player)
+        self.roster.append(player)
 
     def buy_player(self, player, price):
         """Buying a player"""

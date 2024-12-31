@@ -1,4 +1,5 @@
 import random
+import time
 
 import numpy as np
 from faker import Faker
@@ -29,12 +30,13 @@ def generate_age():
             return age
 
 
-def generate_techincal_attributes():
+def generate_techincal_attributes(range1, range2):
     """Generate Technical Attributes"""
     while True:
         numbers = [random.randint(1, 20) for _ in range(14)]
         total = sum(numbers)
-        if 98 <= total <= 196:
+        # if 98 <= total <= 196:
+        if range1 <= total <= range2:
             break
     technical_attributes = Technical(
         Corners=numbers[0],
@@ -55,12 +57,13 @@ def generate_techincal_attributes():
     return technical_attributes
 
 
-def generate_mental_attributes():
+def generate_mental_attributes(range1, range2):
     """Generate Mental attributes"""
     while True:
         numbers = [random.randint(1, 20) for _ in range(14)]
         total = sum(numbers)
-        if 98 <= total <= 196:
+        # if 98 <= total <= 196:
+        if range1 <= total <= range2:
             break
     mental_attributes = Mental(
         Aggression=numbers[0],
@@ -81,12 +84,13 @@ def generate_mental_attributes():
     return mental_attributes
 
 
-def generate_physical_attributes():
+def generate_physical_attributes(range1, range2):
     """Generate Physical attributes"""
     while True:
         numbers = [random.randint(1, 20) for _ in range(8)]
         total = sum(numbers)
-        if 54 <= total <= 106:
+        # if 54 <= total <= 106:
+        if range1 <= total <= range2:
             break
     physical_attributes = Physical(
         Strength=numbers[0],
@@ -101,12 +105,13 @@ def generate_physical_attributes():
     return physical_attributes
 
 
-def generate_gk_attributes():
+def generate_gk_attributes(range1, range2):
     """Generate GK attributes"""
     while True:
         numbers = [random.randint(1, 20) for _ in range(5)]
         total = sum(numbers)
-        if 33 <= total <= 66:
+        # if 33 <= total <= 66:
+        if range1 <= total <= range2:
             break
     gk_attribtues = GK(
         GKDiving=numbers[0],
@@ -118,12 +123,13 @@ def generate_gk_attributes():
     return gk_attribtues
 
 
-def generate_intrinsic_attributes():
+def generate_intrinsic_attributes(range1, range2):
     """Generate Intrinsic attributes"""
     while True:
         numbers = [random.randint(1, 20) for _ in range(8)]
         total = sum(numbers)
-        if 54 <= total <= 106:
+        # if 54 <= total <= 106:
+        if range1 <= total <= range2:
             break
     intrinsic_attributes = Intrinsic(
         Confidence=numbers[0],
@@ -140,18 +146,33 @@ def generate_intrinsic_attributes():
 
 def generate_attributes():
     """Generates Attributes"""
-    technical_attributes = generate_techincal_attributes()
-    mental_attributes = generate_mental_attributes()
-    physical_attributes = generate_physical_attributes()
-    gk_attributes = generate_gk_attributes()
-    intrinsic_attributes = generate_intrinsic_attributes()
-    attributes = Attributes(
-        technical=technical_attributes,
-        mental=mental_attributes,
-        physical=physical_attributes,
-        gk=gk_attributes,
-        intrinsic=intrinsic_attributes,
-    )
+    # Player is a Goalkeeper
+    if random.randint(0, 11) % 11 == 0:
+        technical_attributes = generate_techincal_attributes(1, 98)
+        mental_attributes = generate_mental_attributes(1, 196)
+        physical_attributes = generate_physical_attributes(1, 54)
+        gk_attributes = generate_gk_attributes(44, 72)
+        intrinsic_attributes = generate_intrinsic_attributes(54, 106)
+        attributes = Attributes(
+            technical=technical_attributes,
+            mental=mental_attributes,
+            physical=physical_attributes,
+            gk=gk_attributes,
+            intrinsic=intrinsic_attributes,
+        )
+    else:
+        technical_attributes = generate_techincal_attributes(98, 196)
+        mental_attributes = generate_mental_attributes(98, 196)
+        physical_attributes = generate_physical_attributes(54, 106)
+        gk_attributes = generate_gk_attributes(1, 25)
+        intrinsic_attributes = generate_intrinsic_attributes(54, 106)
+        attributes = Attributes(
+            technical=technical_attributes,
+            mental=mental_attributes,
+            physical=physical_attributes,
+            gk=gk_attributes,
+            intrinsic=intrinsic_attributes,
+        )
     return attributes
 
 
@@ -160,12 +181,17 @@ def generate_player():
     name, nationality = generate_name_and_nationality()
     age = generate_age()
     attributes = generate_attributes()
-    player = Player(name, age, nationality, random.randint(50, 200), attributes)
+    timestamp = int(time.time() * 1000)  # Current time in milliseconds
+    random_part = random.randint(0, 999999)
+    serial_id = f"#{timestamp:013d}{random_part:06d}"
+    player = Player(
+        serial_id, name, age, nationality, random.randint(50, 200), attributes
+    )
     return player
 
 
 def add_players_to_pool():
     """Add player to DB"""
-    for i in range(5):
+    for i in range(2000):
         player = generate_player()
         insert_into_player_pool(player)

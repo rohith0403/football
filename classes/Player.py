@@ -6,17 +6,20 @@ class Player:
 
     def __init__(
         self,
+        uid: str,
         name: str,
         age: int,
         nationalities: list[str],
         pot_ability: int,
         attributes: Attributes,
         position=None,
+        current_ability=0,
         team=None,
         price=100,
         stats=None,
         form=None,
     ):
+        self.uid = uid
         self.name = name
         self.age = age
         self.nationalities = nationalities
@@ -25,9 +28,10 @@ class Player:
         self.price = price
         self.attributes = attributes
         if position is None:
-            self.position = self.calculate_best_position()
+            self.position, self.current_ability = self.calculate_best_position()
         else:
             self.position = position
+            self.current_ability = current_ability
         if stats is None:
             self.stats = []
         if form is None:
@@ -44,12 +48,6 @@ class Player:
         Update age each season
         """
         self.age += 1
-
-    def set_current_ability(self):
-        """
-        Update current ability of the player
-        """
-        pass
 
     def update_price(self, new_price):
         """
@@ -223,11 +221,15 @@ class Player:
         # Calculate scores for all positions
         scores = {}
         for position, attributes in positions.items():
-            primary_score = sum(attributes["primary"]) * 3
-            secondary_score = sum(attributes["secondary"]) * 2
-            tertiary_score = sum(attributes["tertiary"]) * 1
-            scores[position] = primary_score + secondary_score + tertiary_score
-
+            if position != "Goalkeeper (GK)":
+                primary_score = sum(attributes["primary"]) * 0.6
+                secondary_score = sum(attributes["secondary"]) * 0.3
+                tertiary_score = sum(attributes["tertiary"]) * 0.1
+                scores[position] = primary_score + secondary_score + tertiary_score
+            else:
+                primary_score = sum(attributes["primary"]) * 0.7
+                secondary_score = sum(attributes["secondary"]) * 0.3
+                scores[position] = primary_score + secondary_score
         # Get the position with the highest score
         best_position = max(scores, key=scores.get)
-        return best_position
+        return best_position, scores[best_position]

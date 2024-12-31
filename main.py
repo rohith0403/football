@@ -191,6 +191,7 @@ with tabs[1]:  # Player tab
             "Name": [],
             "Age": [],
             "Nationality": [],
+            "Current Ability": [],
             "Potential Ability": [],
             "Position": [],
             "Team": [],
@@ -203,6 +204,7 @@ with tabs[1]:  # Player tab
             player_table_df["Name"].append(player["name"])
             player_table_df["Age"].append(player["age"])
             player_table_df["Nationality"].append(player["nationalities"])
+            player_table_df["Current Ability"].append(player["current_ability"])
             player_table_df["Potential Ability"].append(player["potential_ability"])
             player_table_df["Position"].append(player["position"])
             player_table_df["Team"].append(player["team"])

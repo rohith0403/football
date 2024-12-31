@@ -4,10 +4,11 @@ import json
 import logging
 import random
 import sqlite3
+import time
 
 from classes.Player import Player
 from classes.Team import Team
-from models.models import GK, Attributes, Intrinsic, Mental, Physical, Technical
+from models.models import Attributes
 
 # Constants
 DB_FILE = "league_simulation.db"
@@ -49,6 +50,7 @@ def create_tables():
             price REAL,
             attributes TEXT, -- JSON string for nested Pydantic object
             position TEXT,
+            current_ability INTEGER,
             stats TEXT,
             form TEXT
         )
@@ -120,6 +122,7 @@ def save_teams_to_season_table(teams, season_id):
                 budget INTEGER,
                 form TEXT,
                 fixtures_played TEXT
+                roster TEXT
             )
             """
         )
@@ -156,6 +159,7 @@ def save_teams_to_season_table(teams, season_id):
                     team.budget,
                     json.dumps(team.form),
                     json.dumps(team.fixtures_played),
+                    json.dumps(team.roster),
                 ),
             )
         conn.commit()
@@ -163,9 +167,8 @@ def save_teams_to_season_table(teams, season_id):
 
 def update_teams_in_season_table(teams, season_id):
     """
-    Updates the given teams in a season-specific table. If the team already exists, it updates the record;
-    otherwise, it inserts a new record.
-
+    Updates the given teams in a season-specific table.
+    If the team already exists, it updates the record.
     Args:
         teams (list): List of Team objects to be updated.
         season_id (int): The ID of the season.
@@ -177,7 +180,7 @@ def update_teams_in_season_table(teams, season_id):
         for team in teams:
             cursor.execute(
                 f"""
-                INSERT OR REPLACE INTO {season_table} (
+                REPLACE INTO {season_table} (
                     variable_name,
                     name,
                     offense,
@@ -190,7 +193,8 @@ def update_teams_in_season_table(teams, season_id):
                     goals_conceded,
                     budget,
                     form,
-                    fixtures_played
+                    fixtures_played,
+                    rsoter
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
@@ -207,6 +211,7 @@ def update_teams_in_season_table(teams, season_id):
                     team.budget,
                     json.dumps(team.form),
                     json.dumps(team.fixtures_played),
+                    json.dumps(team.roster),
                 ),
             )
         conn.commit()
@@ -244,7 +249,7 @@ def fetch_teams_from_season_table(season_id):
                 )
                 team.form = json.loads(row[12])
                 team.fixtures_played = json.loads(row[13])
-
+                team.roster = json.loads(row[14])
                 teams.append(team)
         except sqlite3.Error as error:
             LOGGER.error("Error fetching teams from teams table: %s", error)
@@ -259,19 +264,18 @@ def insert_into_player_pool(player):
     :param db_path: Path to the SQLite database file.
     """
 
-    serial_id = f"#{random.randint(0, 999999):06d}"
-
     # Prepare player data for insertion
     player_data = (
-        serial_id,
+        player.uid,
         player.name,
         player.age,
         json.dumps(player.nationalities),  # Store nationalities as JSON
         player.pot_ability,
-        player.team,
+        "" if player.team is None else json.dumps(player.team),
         player.price,
         json.dumps(player.attributes.json()),  # Store attributes as JSON
         player.position,
+        player.current_ability,
         json.dumps(player.stats),  # Store stats as JSON
         player.form,
     )
@@ -282,8 +286,8 @@ def insert_into_player_pool(player):
             """
         INSERT INTO PlayerPool (
             id, name, age, nationalities, potential_ability, team, price,
-            attributes, position, stats, form
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            attributes, position, current_ability, stats, form
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             player_data,
         )
@@ -308,21 +312,21 @@ def fetch_players_from_pool():
             # Convert rows to a list of dictionaries
             players = []
             for row in rows:
-                players.append(
-                    {
-                        "id": row[0],
-                        "name": row[1],
-                        "age": row[2],
-                        "nationalities": json.loads(row[3]),
-                        "potential_ability": row[4],
-                        "team": row[5],
-                        "price": row[6],
-                        "attributes": json.loads(row[7]),
-                        "position": row[8],
-                        "stats": json.loads(row[9]),
-                        "form": row[10],
-                    }
+                player = Player(
+                    uid=row[0],
+                    name=row[1],
+                    age=row[2],
+                    nationalities=json.loads(row[3]),
+                    pot_ability=row[4],
+                    team=None if row[5] == "" else json.loads(row[5]),
+                    price=row[6],
+                    attributes=json.loads(row[7]),
+                    position=row[8],
+                    current_ability=row[9],
+                    stats=json.loads(row[10]),
+                    form=row[11],
                 )
+                players.append(player)
         except sqlite3.Error as error:
             LOGGER.error("Error fetching players from players table: %s", error)
     return players
@@ -355,29 +359,24 @@ def fetch_player_by_id(player_id: str, attributes_model=Attributes):
                 # Step 1: Convert JSON string to dictionary
                 attributes_json = json.loads(raw_json)  # First decode
                 attributes_dict = json.loads(attributes_json)  # Second decode
-                # attributes = Attributes(
-                #     technical=Technical(attributes_dict["technical"]),
-                #     mental=Mental(attributes_dict["technical"]),
-                #     physical=Physical(attributes_dict["technical"]),
-                #     gk=GK(attributes_dict["technical"]),
-                #     intrinsic=Intrinsic(attributes_dict["technical"]),
-                # )
                 # Step 2: Validate the dictionary with the Pydantic model
                 attributes = attributes_model.model_validate(attributes_dict)
             else:
                 attributes = json.loads(attributes_json)
             # Convert the row to a dictionary
             player = Player(
+                uid=row[0],
                 name=row[1],
                 age=row[2],
                 nationalities=json.loads(row[3]),
                 pot_ability=row[4],
-                team=row[5],
+                team=None if row[5] == "" else json.loads(row[5]),
                 price=row[6],
                 attributes=attributes,  # Pydantic model or dict
                 position=row[8],
-                stats=json.loads(row[9]),
-                form=row[10],
+                current_ability=row[9],
+                stats=json.loads(row[10]),
+                form=row[11],
             )
         except sqlite3.Error as error:
             LOGGER.error("Error fetching player from players table via id: %s", error)
