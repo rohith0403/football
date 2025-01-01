@@ -34,8 +34,12 @@ class Player:
             self.current_ability = current_ability
         if stats is None:
             self.stats = []
+        else:
+            self.stats = stats
         if form is None:
             self.form = None
+        else:
+            self.form = form
 
     def assign_team(self, team):
         """
@@ -233,3 +237,21 @@ class Player:
         # Get the position with the highest score
         best_position = max(scores, key=scores.get)
         return best_position, scores[best_position]
+
+
+    def to_dict(self):
+        """Convert player to dictionary"""
+        return {
+            "uid": self.uid,
+            "name": self.name,
+            "age": self.age,
+            "nationalities": self.nationalities,
+            "pot_ability": self.pot_ability,
+            "attributes": self.attributes.model_dump_json(),
+            "position": self.position,
+            "current_ability": self.current_ability,
+            "team": self.team.to_dict() if self.team else "",
+            "price": self.price,
+            "stats": self.stats,
+            "form": self.form,
+        }

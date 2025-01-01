@@ -5,7 +5,8 @@ import numpy as np
 from faker import Faker
 
 from classes.Player import Player
-from db.store import insert_into_player_pool
+
+# from db.store import insert_into_player_pool
 from models.models import GK, Attributes, Intrinsic, Mental, Physical, Technical
 
 fake = Faker()
