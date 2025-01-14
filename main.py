@@ -1,12 +1,15 @@
-# import pandas as pd
+import pandas as pd
 import streamlit as st
 
 # from classes.League import League
 from db.store import (  # create_new_season,; fetch_league_history_from_season_table,; fetch_player_by_id,; fetch_players_from_pool,; fetch_season_id,; fetch_teams_from_season_table,; update_offense_defense_ratings_for_new_season,; wipe_season_data,
     create_tables,
+    fetch_all_players,
+    fetch_all_teams,
+    wipe_season_data,
 )
 from initializers.league_initializer import initialize_league
-from initializers.team_initializer import initialize_teams
+from initializers.team_initializer import initialize_premier_league
 
 # from generators.player_generator import add_players_to_pool
 # from generators.team_generator import initialize_teams
@@ -16,10 +19,10 @@ from initializers.team_initializer import initialize_teams
 # Function to refresh the database
 def initialize_db():
     """Initialize Database"""
-    # wipe_season_data()
+    wipe_season_data()
     create_tables()
     initialize_league()
-    initialize_teams()
+    initialize_premier_league()
 
 
 st.title("Football Simulation")
@@ -61,11 +64,11 @@ with col1:
 #             True  # Show the Run Season button again
 #         )
 
-# # Tabs for navigation
-# tabs = st.tabs(["League", "Player"])
+# Tabs for navigation
+tabs = st.tabs(["League", "Players", "Teams"])
 
-# with tabs[0]:  # League tab
-#     st.header("League Simulation")
+with tabs[0]:  # League tab
+    st.header("League Simulation")
 
 
 #     current_season_id = fetch_season_id()
@@ -171,55 +174,53 @@ with col1:
 #     else:
 #         st.write("Click 'Run Season' to start the simulation.")
 
-# with tabs[1]:  # Player tab
-#     st.header("Player Management")
-#     players = fetch_players_from_pool()
+with tabs[1]:  # Player tab
+    st.header("Player Management")
 
-#     if "players_generated" not in st.session_state:
-#         st.session_state.players_generated = False
+    players = fetch_all_players()
 
-#     if "selected_player" not in st.session_state:
-#         st.session_state.selected_player = None
+    #     if "players_generated" not in st.session_state:
+    #         st.session_state.players_generated = False
 
-#     if st.button("Generate Players"):
-#         add_players_to_pool()
-#         st.session_state.players_generated = True
-#         st.success("Players generated successfully!")
+    #     if "selected_player" not in st.session_state:
+    #         st.session_state.selected_player = None
 
+    #     if st.button("Generate Players"):
+    #         add_players_to_pool()
+    #         st.session_state.players_generated = True
+    #         st.success("Players generated successfully!")
 
-#     if st.session_state.players_generated or len(players) > 0:
-#         if st.session_state.players_generated:
-#             players = fetch_players_from_pool()
-#         player_table_df = {
-#             "ID": [],
-#             "Name": [],
-#             "Age": [],
-#             "Nationality": [],
-#             "Current Ability": [],
-#             "Potential Ability": [],
-#             "Position": [],
-#             "Team": [],
-#             "Form": [],
-#             "Stats": [],
-#             "Price": [],
-#         }
-#         for player in players:
-#             player_table_df["ID"].append(player.uid)
-#             player_table_df["Name"].append(player.name)
-#             player_table_df["Age"].append(player.age)
-#             player_table_df["Nationality"].append(player.nationalities)
-#             player_table_df["Current Ability"].append(player.current_ability)
-#             player_table_df["Potential Ability"].append(player.pot_ability)
-#             player_table_df["Position"].append(player.position)
-#             player_table_df["Team"].append(player.team["name"] if player.team else None)
-#             player_table_df["Form"].append(player.form)
-#             player_table_df["Stats"].append(player.stats)
-#             player_table_df["Price"].append(player.price)
+    if len(players) > 0:
+        # if st.session_state.players_generated:
+        #     players = fetch_players_from_pool()
+        player_table_df = {
+            "ID": [],
+            "Name": [],
+            "Age": [],
+            "Nationality": [],
+            "Current Ability": [],
+            "Position": [],
+            "Team": [],
+            "Form": [],
+            "Stats": [],
+            "Price": [],
+        }
+        for player in players:
+            player_table_df["ID"].append(player.uid)
+            player_table_df["Name"].append(player.name)
+            player_table_df["Age"].append(player.age)
+            player_table_df["Nationality"].append(player.nationalities)
+            player_table_df["Current Ability"].append(player.current_ability)
+            player_table_df["Position"].append(player.position)
+            player_table_df["Team"].append(player.team)
+            player_table_df["Form"].append(player.form)
+            player_table_df["Stats"].append(player.stats)
+            player_table_df["Price"].append(player.price)
 
-#         player_table_df = pd.DataFrame(player_table_df)
+        player_table_df = pd.DataFrame(player_table_df)
 
-#         # Display the league table for the selected game week
-#         st.dataframe(player_table_df, use_container_width=True)
+        # Display the league table for the selected game week
+        st.dataframe(player_table_df, use_container_width=True)
 
 #         col1, col2, col3 = st.columns(3)
 
@@ -274,3 +275,29 @@ with col1:
 #                 )
 #         else:
 #             st.warning("No players match your search criteria.")
+
+with tabs[2]:  # Teams tab
+    st.header("Team Management")
+    teams = fetch_all_teams()
+
+    if len(teams) > 0:
+        team_table_df = {
+            "Name": [],
+            "League": [],
+            "Budget": [],
+            "Form": [],
+            "Team Ability": [],
+        }
+        for team in teams:
+            team_table_df["Name"].append(team.name)
+            team_table_df["League"].append(team.league)
+            team_table_df["Form"].append(team.current_form)
+            team_table_df["Budget"].append(team.budget)
+            team_table_df["Team Ability"].append(team.team_ability)
+
+        team_table_df = pd.DataFrame(team_table_df)
+
+        # Display the league table for the selected game week
+        st.dataframe(team_table_df, use_container_width=True)
+    else:
+        st.warning("No teams found in the database.")

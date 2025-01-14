@@ -10,11 +10,11 @@ class Player:
         name: str,
         age: int,
         nationalities: list[str],
-        pot_ability: int,
         attributes: Attributes,
         position=None,
         current_ability=0,
-        team=None,
+        team="",
+        league="",
         price=100,
         stats=None,
         form=None,
@@ -23,23 +23,17 @@ class Player:
         self.name = name
         self.age = age
         self.nationalities = nationalities
-        self.pot_ability = pot_ability
         self.team = team
+        self.league = league
         self.price = price
         self.attributes = attributes
+        self.stats = [] if stats is None else stats
+        self.form = [] if form is None else form
         if position is None:
             self.position, self.current_ability = self.calculate_best_position()
         else:
             self.position = position
             self.current_ability = current_ability
-        if stats is None:
-            self.stats = []
-        else:
-            self.stats = stats
-        if form is None:
-            self.form = None
-        else:
-            self.form = form
 
     def assign_team(self, team):
         """
@@ -47,7 +41,7 @@ class Player:
         """
         self.team = team
 
-    def update_age(self):
+    def increment_age(self):
         """
         Update age each season
         """
@@ -62,7 +56,6 @@ class Player:
     def calculate_best_position(self) -> str:
         """Get the best position of player"""
         all_technical = [
-            self.attributes.technical.Corners,
             self.attributes.technical.Crossing,
             self.attributes.technical.Dribbling,
             self.attributes.technical.Finishing,
@@ -73,9 +66,7 @@ class Player:
             self.attributes.technical.Long_Throws,
             self.attributes.technical.Marking,
             self.attributes.technical.Passing,
-            self.attributes.technical.Penalty_Taking,
             self.attributes.technical.Tackling,
-            self.attributes.technical.Technique,
         ]
         all_mental = [
             self.attributes.mental.Aggression,
@@ -238,7 +229,6 @@ class Player:
         best_position = max(scores, key=scores.get)
         return best_position, scores[best_position]
 
-
     def to_dict(self):
         """Convert player to dictionary"""
         return {
@@ -246,7 +236,6 @@ class Player:
             "name": self.name,
             "age": self.age,
             "nationalities": self.nationalities,
-            "pot_ability": self.pot_ability,
             "attributes": self.attributes.model_dump_json(),
             "position": self.position,
             "current_ability": self.current_ability,

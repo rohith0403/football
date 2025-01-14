@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field
 
 
 class Technical(BaseModel):
-    Corners: int = Field(..., ge=1, le=20)
     Crossing: int = Field(..., ge=1, le=20)
     Dribbling: int = Field(..., ge=1, le=20)
     Finishing: int = Field(..., ge=1, le=20)
@@ -13,9 +12,7 @@ class Technical(BaseModel):
     Long_Throws: int = Field(..., ge=1, le=20)
     Marking: int = Field(..., ge=1, le=20)
     Passing: int = Field(..., ge=1, le=20)
-    Penalty_Taking: int = Field(..., ge=1, le=20)
     Tackling: int = Field(..., ge=1, le=20)
-    Technique: int = Field(..., ge=1, le=20)
 
 
 class Mental(BaseModel):

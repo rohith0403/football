@@ -1,5 +1,8 @@
 """Team class"""
 
+import importlib
+import random
+
 
 class Team:
     """
@@ -10,10 +13,12 @@ class Team:
         self,
         name,
         league,
-        budget=2500,
+        budget=100,
         stats=None,
         current_form=None,
         roster=None,
+        manager="",
+        formation=None,
     ):
         """
         Initialize a team with a name, ability, and recent form.
@@ -26,37 +31,76 @@ class Team:
         self.league = league
         self.budget = budget
         self.current_form = current_form if current_form else []
-        self.stats = stats if stats else {}  # dict with stats
-        self.roster = roster if roster else []
-        self.team_ability = self.calculate_ability()
+        self.stats = stats if stats is not None else self.initialize_stats(1)
+        self.roster = roster if roster is not None else []
+        self.manager = manager
+        self.formation = formation
 
-    def calculate_ability(self):
+    def get_players(self):
+        """Get players from roster"""
+        store = importlib.import_module("db.store")
+        players = [store.fetch_player_by_id(player_id) for player_id in self.roster]
+        return players
+
+    def get_random_player(self, role=None):
+        """Get a random player from the team"""
+        players = self.get_players()
+        if role:
+            candidates = [p for p in players if p.role == role]
+            return random.choice(candidates)
+        return random.choice(players)
+
+    def calculate_team_strength(self):
+        """Calculate offense and defence of the team from player attributes"""
+        players = self.get_players()
+        offense = sum(
+            player.shooting for player in players if player.role != "Goalkeeper"
+        ) / len(players)
+        defense = sum(
+            player.defending for player in players if player.role != "Goalkeeper"
+        ) / len(players)
+
+        # form_factor = sum(team.current_form) / len(team.current_form)
+        # return offense * (form_factor / 10), defense * (form_factor / 10)
+        form_factor = self.form_factor()
+        return offense * form_factor, defense * form_factor
+
+    def form_factor(self):
         """
-        Calculate the team's ability based on stats.
+        Calculate the influence of form on the team's performance.
+        A good form (more 'W') increases the team's strength.
 
         Returns:
-            float: The team's ability.
+            float: A multiplier for the team's performance.
         """
-        return 0.0
+        if not self.current_form:
+            return 1.0  # Neutral factor if no form data exists
 
-    # def form_factor(self):
-    #     """
-    #     Calculate the influence of form on the team's performance.
-    #     A good form (more 'W') increases the team's strength.
+        # Calculate form score: +2 for 'W', -1 for 'L', 0 for 'D'
+        form_score = sum(
+            2 if result == "W" else -1 if result == "L" else 0
+            for result in self.current_form
+        )
 
-    #     Returns:
-    #         float: A multiplier for the team's performance.
-    #     """
-    #     if not self.form:
-    #         return 1.0  # Neutral factor if no form data exists
+        # Normalize form factor: range ~ [0.9, 1.2]
+        return 1 + 0.01 * form_score
 
-    #     # Calculate form score: +2 for 'W', -1 for 'L', 0 for 'D'
-    #     form_score = sum(
-    #         2 if result == "W" else -1 if result == "L" else 0 for result in self.form
-    #     )
-
-    #     # Normalize form factor: range ~ [0.9, 1.2]
-    #     return 1 + 0.01 * form_score
+    def initialize_stats(self, season_id):
+        """Initialize stats for the team"""
+        self.stats.append(
+            {
+                f"season {season_id}": {
+                    "matches_played": 0,
+                    "points": 0,
+                    "wins": 0,
+                    "draws": 0,
+                    "losses": 0,
+                    "goals_scored": 0,
+                    "goals_against": 0,
+                    "goal_difference": 0,
+                }
+            }
+        )
 
     # def add_match_result(self, result):
     #     """

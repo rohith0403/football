@@ -1,3 +1,5 @@
+""" Player Initializer Module """
+
 import random
 import time
 
@@ -5,8 +7,6 @@ import numpy as np
 from faker import Faker
 
 from classes.Player import Player
-
-# from db.store import insert_into_player_pool
 from models.models import GK, Attributes, Intrinsic, Mental, Physical, Technical
 
 fake = Faker()
@@ -36,24 +36,20 @@ def generate_techincal_attributes(range1, range2):
     while True:
         numbers = [random.randint(1, 20) for _ in range(14)]
         total = sum(numbers)
-        # if 98 <= total <= 196:
         if range1 <= total <= range2:
             break
     technical_attributes = Technical(
-        Corners=numbers[0],
-        Crossing=numbers[1],
-        Dribbling=numbers[2],
-        Finishing=numbers[3],
-        FirstTouch=numbers[4],
-        FreeKickTaking=numbers[5],
-        Heading=numbers[6],
-        Long_Shots=numbers[7],
-        Long_Throws=numbers[8],
-        Marking=numbers[9],
-        Passing=numbers[10],
-        Penalty_Taking=numbers[11],
-        Tackling=numbers[12],
-        Technique=numbers[13],
+        Crossing=numbers[0],
+        Dribbling=numbers[1],
+        Finishing=numbers[2],
+        FirstTouch=numbers[3],
+        FreeKickTaking=numbers[4],
+        Heading=numbers[5],
+        Long_Shots=numbers[6],
+        Long_Throws=numbers[7],
+        Marking=numbers[8],
+        Passing=numbers[9],
+        Tackling=numbers[10],
     )
     return technical_attributes
 
@@ -63,7 +59,6 @@ def generate_mental_attributes(range1, range2):
     while True:
         numbers = [random.randint(1, 20) for _ in range(14)]
         total = sum(numbers)
-        # if 98 <= total <= 196:
         if range1 <= total <= range2:
             break
     mental_attributes = Mental(
@@ -90,7 +85,6 @@ def generate_physical_attributes(range1, range2):
     while True:
         numbers = [random.randint(1, 20) for _ in range(8)]
         total = sum(numbers)
-        # if 54 <= total <= 106:
         if range1 <= total <= range2:
             break
     physical_attributes = Physical(
@@ -149,11 +143,11 @@ def generate_attributes():
     """Generates Attributes"""
     # Player is a Goalkeeper
     if random.randint(0, 11) % 11 == 0:
-        technical_attributes = generate_techincal_attributes(1, 98)
-        mental_attributes = generate_mental_attributes(1, 196)
+        technical_attributes = generate_techincal_attributes(1, 144)
+        mental_attributes = generate_mental_attributes(1, 144)
         physical_attributes = generate_physical_attributes(1, 54)
-        gk_attributes = generate_gk_attributes(44, 72)
-        intrinsic_attributes = generate_intrinsic_attributes(54, 106)
+        gk_attributes = generate_gk_attributes(30, 90)
+        intrinsic_attributes = generate_intrinsic_attributes(40, 106)
         attributes = Attributes(
             technical=technical_attributes,
             mental=mental_attributes,
@@ -162,11 +156,11 @@ def generate_attributes():
             intrinsic=intrinsic_attributes,
         )
     else:
-        technical_attributes = generate_techincal_attributes(98, 196)
-        mental_attributes = generate_mental_attributes(98, 196)
-        physical_attributes = generate_physical_attributes(54, 106)
+        technical_attributes = generate_techincal_attributes(60, 200)
+        mental_attributes = generate_mental_attributes(60, 250)
+        physical_attributes = generate_physical_attributes(40, 144)
         gk_attributes = generate_gk_attributes(1, 25)
-        intrinsic_attributes = generate_intrinsic_attributes(54, 106)
+        intrinsic_attributes = generate_intrinsic_attributes(40, 144)
         attributes = Attributes(
             technical=technical_attributes,
             mental=mental_attributes,
@@ -177,7 +171,7 @@ def generate_attributes():
     return attributes
 
 
-def generate_player():
+def generate_player(team=""):
     """Method to generate player"""
     name, nationality = generate_name_and_nationality()
     age = generate_age()
@@ -185,14 +179,5 @@ def generate_player():
     timestamp = int(time.time() * 1000)  # Current time in milliseconds
     random_part = random.randint(0, 999999)
     serial_id = f"#{timestamp:013d}{random_part:06d}"
-    player = Player(
-        serial_id, name, age, nationality, random.randint(50, 200), attributes
-    )
+    player = Player(serial_id, name, age, nationality, attributes, team=team)
     return player
-
-
-def add_players_to_pool():
-    """Add player to DB"""
-    for i in range(2000):
-        player = generate_player()
-        insert_into_player_pool(player)

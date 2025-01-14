@@ -4,6 +4,7 @@ import json
 import logging
 import sqlite3
 
+from classes.League import League
 from classes.Player import Player
 from classes.Team import Team
 from models.models import Attributes
@@ -57,24 +58,23 @@ def create_tables():
             )
             """
         )
-        # cursor.execute(
-        #     """
-        # CREATE TABLE IF NOT EXISTS PlayerPool (
-        #     id TEXT PRIMARY KEY,
-        #     name TEXT,
-        #     age INTEGER,
-        #     nationalities TEXT,
-        #     potential_ability INTEGER,
-        #     price REAL,
-        #     attributes TEXT, -- JSON string for nested Pydantic object
-        #     position TEXT,
-        #     current_ability INTEGER,
-        #     stats TEXT,
-        #     form TEXT,
-        #     FOREIGN KEY (team) REFERENCES teams(name)
-        # )
-        #     """
-        # )
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS PlayerPool (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            age INTEGER,
+            nationalities TEXT,
+            team TEXT,
+            price INTEGER,
+            attributes TEXT, -- JSON string for nested Pydantic object
+            position TEXT,
+            current_ability INTEGER,
+            stats TEXT,
+            form TEXT
+            )
+            """
+        )
         conn.commit()
 
 
@@ -112,9 +112,9 @@ def insert_team(team):
     team_data = (
         team.name,
         team.league,
-        team.budget,
         team.team_ability,
-        json.dumps([player.to_dict() for player in team.roster]),
+        team.budget,
+        json.dumps(team.roster),
         json.dumps(team.stats),
         json.dumps(team.current_form),
     )
@@ -122,7 +122,7 @@ def insert_team(team):
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO teams (name, league, budget, team_ability, roster, stats, current_form )
+            INSERT INTO teams (name, league, team_ability, budget, roster, stats, current_form )
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             team_data,
@@ -130,39 +130,227 @@ def insert_team(team):
         conn.commit()
 
 
-# def create_new_season():
-#     """
-#     Creates a new season entry and returns the season ID.
+def insert_player(player):
+    """
+    Insert a player into the PlayerPool table in SQLite3.
 
-#     Returns:
-#         int: The ID of the new season.
-#     """
-#     with get_db_connection() as conn:
-#         cursor = conn.cursor()
-#         cursor.execute("INSERT INTO seasons DEFAULT VALUES")
-#         new_season_id = cursor.lastrowid
-#         conn.commit()
-#     create_tables_for_new_season(new_season_id)
-#     return new_season_id
+    :param player: Player object to be inserted.
+    :param db_path: Path to the SQLite database file.
+    """
+
+    # Prepare player data for insertion
+    player_data = (
+        player.uid,
+        player.name,
+        player.age,
+        json.dumps(player.nationalities),  # Store nationalities as JSON
+        player.team,
+        player.price,
+        json.dumps(player.attributes.json()),  # Store attributes as JSON
+        player.position,
+        player.current_ability,
+        json.dumps(player.stats),  # Store stats as JSON
+        json.dumps(player.form),
+    )
+    with get_db_connection() as conn:
+        # Insert data into the table
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO PlayerPool (
+                id, name, age, nationalities, team, price,
+                attributes, position, current_ability, stats, form
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            player_data,
+        )
+        conn.commit()
 
 
-# def fetch_season_id():
-#     """
-#     Fetches the latest season_id from the database.
+def fetch_all_leagues():
+    """
+    Fetches all leagues from the leagues table in SQLite3.
 
-#     Returns:
-#         int: The most recent season_id. Returns 1 if no season exists.
-#     """
-#     with get_db_connection() as conn:
-#         cursor = conn.cursor()
-#         try:
-#             # Fetch the max id from the season table
-#             cursor.execute("SELECT MAX(id) FROM seasons")
-#             result = cursor.fetchone()
-#             return result[0]
-#         except sqlite3.Error as error:
-#             LOGGER.error("Error fetching season id from season table: %s", error)
-#     return 0
+    Returns:
+        list: List of league records as dictionaries.
+    """
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        try:
+            # Fetch all rows from the table
+            cursor.execute("SELECT * FROM leagues")
+            rows = cursor.fetchall()
+            leagues = []
+            for row in rows:
+                league = League(
+                    name=row[0],
+                    country=row[1],
+                    tier=row[2],
+                )
+                leagues.append(league)
+        except sqlite3.Error as error:
+            LOGGER.error("Error fetching leagues from leagues table: %s", error)
+    return leagues
+
+
+def fetch_all_teams():
+    """
+    Fetches all teams from the teams table in SQLite3.
+
+    Returns:
+        list: List of team records as dictionaries.
+    """
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        try:
+            # Fetch all rows from the table
+            cursor.execute("SELECT * FROM teams")
+            rows = cursor.fetchall()
+            teams = []
+            for row in rows:
+                team = Team(
+                    name=row[0],
+                    league=row[1],
+                    team_ability=row[2],
+                    budget=row[3],
+                )
+                team.roster = json.loads(row[4])
+                team.stats = json.loads(row[5])
+                team.current_form = json.loads(row[6])
+                teams.append(team)
+        except sqlite3.Error as error:
+            LOGGER.error("Error fetching teams from teams table: %s", error)
+    return teams
+
+
+def fetch_all_players(attributes_model=Attributes):
+    """
+    Fetches all players from the PlayerPool table in SQLite3.
+
+    :param db_path: Path to the SQLite database file.
+    :return: List of player records as dictionaries.
+    """
+    players = []
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        try:
+            # Fetch all rows from the table
+            cursor.execute("SELECT * FROM PlayerPool")
+            rows = cursor.fetchall()
+            # Convert rows to a list of dictionaries
+            for row in rows:
+                raw_json = row[6]  # This is the JSON string from the DB
+                attributes = None
+                if attributes_model:
+                    # Step 1: Convert JSON string to dictionary
+                    attributes_json = json.loads(raw_json)  # First decode
+                    attributes_dict = json.loads(attributes_json)  # Second decode
+                    # Step 2: Validate the dictionary with the Pydantic model
+                    attributes = attributes_model.model_validate(attributes_dict)
+                else:
+                    attributes = json.loads(attributes_json)
+                player = Player(
+                    uid=row[0],
+                    name=row[1],
+                    age=row[2],
+                    nationalities=json.loads(row[3]),
+                    team=row[4],
+                    price=row[5],
+                    attributes=attributes,
+                    position=row[7],
+                    current_ability=row[8],
+                    stats=json.loads(row[9]),
+                    form=row[10],
+                )
+                players.append(player)
+        except sqlite3.Error as error:
+            LOGGER.error("Error fetching players from players table: %s", error)
+    return players
+
+
+def fetch_player_by_id(player_id: str, attributes_model=Attributes):
+    """
+    Fetch a single player from the PlayerPool table by their unique ID.
+
+    :param player_id: The unique ID of the player to fetch.
+    :param db_path: Path to the SQLite database file.
+    :param attributes_model: Pydantic model class for attributes deserialization.
+    :return: A dictionary representing the player or None if not found.
+    """
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        try:
+            # Fetch the player by ID
+            cursor.execute("SELECT * FROM PlayerPool WHERE id = ?", (player_id,))
+            row = cursor.fetchone()
+
+            if not row:
+                conn.close()
+                return None  # Player not found
+
+            raw_json = row[6]  # This is the JSON string from the DB
+            attributes = None
+            if attributes_model:
+                # Step 1: Convert JSON string to dictionary
+                attributes_json = json.loads(raw_json)  # First decode
+                attributes_dict = json.loads(attributes_json)  # Second decode
+                # Step 2: Validate the dictionary with the Pydantic model
+                attributes = attributes_model.model_validate(attributes_dict)
+            else:
+                attributes = json.loads(attributes_json)
+            # Convert the row to a dictionary
+            player = Player(
+                uid=row[0],
+                name=row[1],
+                age=row[2],
+                nationalities=json.loads(row[3]),
+                team=row[4],
+                price=row[5],
+                attributes=attributes,  # Pydantic model or dict
+                position=row[7],
+                current_ability=row[8],
+                stats=json.loads(row[9]),
+                form=row[10],
+            )
+        except sqlite3.Error as error:
+            LOGGER.error("Error fetching player from players table via id: %s", error)
+    return player
+
+
+def create_new_season():
+    """
+    Creates a new season entry and returns the season ID.
+
+    Returns:
+        int: The ID of the new season.
+    """
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO seasons DEFAULT VALUES")
+        new_season_id = cursor.lastrowid
+        conn.commit()
+    # create_tables_for_new_season(new_season_id)
+    return new_season_id
+
+
+def fetch_season_id():
+    """
+    Fetches the latest season_id from the database.
+
+    Returns:
+        int: The most recent season_id. Returns 1 if no season exists.
+    """
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        try:
+            # Fetch the max id from the season table
+            cursor.execute("SELECT MAX(id) FROM seasons")
+            result = cursor.fetchone()
+            return result[0]
+        except sqlite3.Error as error:
+            LOGGER.error("Error fetching season id from season table: %s", error)
+    return 0
 
 
 # def save_teams_to_season_table(teams, season_id):
