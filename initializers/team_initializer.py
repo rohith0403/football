@@ -11,22 +11,23 @@ def generate_roster():
 
     # Generate required players for each position
     positions = {
-        "Goalkeeper (GK)": 2,
-        "Center Back (CB)": 2,
-        "Full Back (FB)": 2,
-        "Defensive Midfielder (DM)": 1,
-        "Holding Midfielder": 1,
-        "Attacking Midfielder (CAM)": 1,
-        "Winger": 2,
-        "Striker": 1,
+        "GK": 1,
+        "CB": 2,
+        "FB": 2,
+        "DM": 1,
+        "HM": 1,
+        "CAM": 1,
+        "W": 2,
+        "ST": 1,
     }
 
     # Generate players for each required position
-    for position, count in positions.items():
-        for _ in range(count):
-            player = generate_player()
-            player.position = position
+    while len(roster) < 11:
+        player = generate_player()
+        player.position = player.calculate_best_position()
+        if positions[player.position] > 0:
             roster.append(player)
+            positions[player.position] -= 1
 
     # Generate remaining players to fill the roster to 25
     while len(roster) < 25:
@@ -72,6 +73,5 @@ def initialize_premier_league():
             player.league = league_name
             uid_list.append(player.uid)
             insert_player(player)
-        team = Team(team_name, league_name, roster=uid_list)
-        team.calculate_ability(roster)
+        team = Team(name=team_name, league=league_name, roster=uid_list)
         insert_team(team)

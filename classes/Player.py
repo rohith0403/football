@@ -78,17 +78,12 @@ class Player:
             self.attributes.mental.Determination,
             self.attributes.mental.Flair,
             self.attributes.mental.Leadership,
-            self.attributes.mental.OffTheBall,
             self.attributes.mental.Positioning,
             self.attributes.mental.Teamwork,
             self.attributes.mental.Vision,
             self.attributes.mental.WorkRate,
         ]
         all_physical = [
-            self.attributes.physical.Acceleration,
-            self.attributes.physical.Agility,
-            self.attributes.physical.Balance,
-            self.attributes.physical.JumpingReach,
             self.attributes.physical.NaturalFitness,
             self.attributes.physical.Pace,
             self.attributes.physical.Stamina,
@@ -104,7 +99,7 @@ class Player:
 
         # Define positions with primary, secondary, and tertiary attributes
         positions = {
-            "Goalkeeper (GK)": {
+            "GK": {
                 "primary": [
                     self.attributes.gk.GKDiving,
                     self.attributes.gk.GKHandling,
@@ -115,10 +110,9 @@ class Player:
                 "secondary": [
                     self.attributes.mental.Concentration,
                     self.attributes.mental.Composure,
-                    self.attributes.physical.JumpingReach,
                 ],
             },
-            "Center Back (CB)": {
+            "CB": {
                 "primary": [
                     self.attributes.technical.Marking,
                     self.attributes.technical.Tackling,
@@ -127,10 +121,9 @@ class Player:
                 "secondary": [
                     self.attributes.physical.Strength,
                     self.attributes.mental.Positioning,
-                    self.attributes.physical.JumpingReach,
                 ],
             },
-            "Full Back (FB)": {
+            "FB": {
                 "primary": [
                     self.attributes.technical.Crossing,
                     self.attributes.technical.Marking,
@@ -142,7 +135,7 @@ class Player:
                     self.attributes.mental.Teamwork,
                 ],
             },
-            "Defensive Midfielder (DM)": {
+            "DM": {
                 "primary": [
                     self.attributes.mental.Positioning,
                     self.attributes.technical.Marking,
@@ -154,11 +147,10 @@ class Player:
                     self.attributes.physical.Stamina,
                 ],
             },
-            "Holding Midfielder": {
+            "HM": {
                 "primary": [
                     self.attributes.technical.Passing,
                     self.attributes.mental.Decisions,
-                    self.attributes.technical.Technique,
                 ],
                 "secondary": [
                     self.attributes.mental.Teamwork,
@@ -166,7 +158,7 @@ class Player:
                     self.attributes.mental.Composure,
                 ],
             },
-            "Attacking Midfielder (CAM)": {
+            "CAM": {
                 "primary": [
                     self.attributes.technical.Passing,
                     self.attributes.technical.Finishing,
@@ -178,7 +170,7 @@ class Player:
                     self.attributes.technical.FirstTouch,
                 ],
             },
-            "Winger": {
+            "W": {
                 "primary": [
                     self.attributes.technical.Crossing,
                     self.attributes.technical.Dribbling,
@@ -190,7 +182,7 @@ class Player:
                     self.attributes.technical.Passing,
                 ],
             },
-            "Striker": {
+            "ST": {
                 "primary": [
                     self.attributes.technical.Finishing,
                     self.attributes.technical.FirstTouch,
@@ -228,6 +220,25 @@ class Player:
         # Get the position with the highest score
         best_position = max(scores, key=scores.get)
         return best_position, scores[best_position]
+
+    def initialize_stats(self, season_id):
+        """
+        Initialize stats for the player
+        """
+        self.stats = []
+        self.stats.append(
+            {
+                f"season {season_id}": {
+                    "appearances": 0,
+                    "goals": 0,
+                    "assists": 0,
+                    "yellow_cards": 0,
+                    "red_cards": 0,
+                    "motm": 0,
+                    "avg_rating": 0,
+                }
+            }
+        )
 
     def to_dict(self):
         """Convert player to dictionary"""

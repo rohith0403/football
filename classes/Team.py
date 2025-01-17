@@ -14,27 +14,24 @@ class Team:
         name,
         league,
         budget=100,
-        stats=None,
         current_form=None,
         roster=None,
         manager="",
         formation=None,
     ):
         """
-        Initialize a team with a name, ability, and recent form.
-
-        :param name: str, the name of the team
-        :param ability: int, the ability of the team (1-100)
-        :param form: list[str], the recent form of the team (e.g., ['W', 'D', 'L', 'W', 'L'])
+        Initialize a team
         """
         self.name = name
         self.league = league
         self.budget = budget
         self.current_form = current_form if current_form else []
-        self.stats = stats if stats is not None else self.initialize_stats(1)
+        self.stats = self.initialize_stats(1)
         self.roster = roster if roster is not None else []
         self.manager = manager
         self.formation = formation
+        self.matches_played = {}
+        self.offense, self.defense = self.calculate_team_strength()
 
     def get_players(self):
         """Get players from roster"""
@@ -53,12 +50,70 @@ class Team:
     def calculate_team_strength(self):
         """Calculate offense and defence of the team from player attributes"""
         players = self.get_players()
-        offense = sum(
-            player.shooting for player in players if player.role != "Goalkeeper"
-        ) / len(players)
-        defense = sum(
-            player.defending for player in players if player.role != "Goalkeeper"
-        ) / len(players)
+        offense = (
+            sum(
+                player.attributes.technical.finishing
+                for player in players
+                if player.role != "Goalkeeper"
+            )
+            + 0.6
+            * sum(
+                player.attributes.technical.passing
+                for player in players
+                if player.role != "Goalkeeper"
+            )
+            + 0.3
+            * sum(
+                player.attributes.technical.Long_Shots
+                for player in players
+                if player.role != "Goalkeeper"
+            )
+            + 0.4
+            * sum(
+                player.attributes.technical.heading
+                for player in players
+                if player.role != "Goalkeeper"
+            )
+            + 0.4
+            * sum(
+                player.attributes.technical.crossing
+                for player in players
+                if player.role != "Goalkeeper"
+            )
+            + 0.4
+            * sum(
+                player.attributes.technical.dribbling
+                for player in players
+                if player.role != "Goalkeeper"
+            )
+            / len(players)
+        )
+        defense = (
+            sum(
+                player.attributes.technical.Tackling
+                for player in players
+                if player.role != "Goalkeeper"
+            )
+            + 0.6
+            * sum(
+                player.attributes.technical.Marking
+                for player in players
+                if player.role != "Goalkeeper"
+            )
+            + 0.4
+            * sum(
+                player.attributes.technical.Heading
+                for player in players
+                if player.role != "Goalkeeper"
+            )
+            + 0.4
+            * sum(
+                player.attributes.technical.Composure
+                for player in players
+                if player.role != "Goalkeeper"
+            )
+            / len(players)
+        )
 
         # form_factor = sum(team.current_form) / len(team.current_form)
         # return offense * (form_factor / 10), defense * (form_factor / 10)
@@ -87,7 +142,7 @@ class Team:
 
     def initialize_stats(self, season_id):
         """Initialize stats for the team"""
-        self.stats.append(
+        return [
             {
                 f"season {season_id}": {
                     "matches_played": 0,
@@ -100,7 +155,33 @@ class Team:
                     "goal_difference": 0,
                 }
             }
-        )
+        ]
+
+    def update_matches_played(self, h_or_a, opponent, scored, against):
+        """Update matches played for the team"""
+        if opponent in self.matches_played:
+            self.matches_played[opponent].append([h_or_a, opponent, scored, against])
+
+    def get_form_against_team(self, opponent):
+        """Get form against a particular team"""
+        form_against_team = []
+        if opponent in self.matches_played:
+            if len(self.matches_played[opponent]) > 5:
+                for fixture in self.matches_played[opponent][-5:]:
+                    if fixture[2] > fixture[3]:
+                        form_against_team.append("W")
+                    elif fixture[2] < fixture[3]:
+                        form_against_team.append("L")
+                    else:
+                        form_against_team.append("D")
+            else:
+                for fixture in self.matches_played[opponent]:
+                    if fixture[2] > fixture[3]:
+                        form_against_team.append("W")
+                    elif fixture[2] < fixture[3]:
+                        form_against_team.append("L")
+                    else:
+                        form_against_team.append("D")
 
     # def add_match_result(self, result):
     #     """

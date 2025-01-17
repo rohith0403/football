@@ -186,17 +186,20 @@ class League:
                     player.saves += random.randint(1, 5)  # Random saves for goalkeepers
                     player.rating += player.saves * 0.1
 
+        # Update team_a stats
         team_a.stats[season_id - 1][f"season {season_id}"].goals_scored += goals_a
         team_a.stats[season_id - 1][f"season {season_id}"].goals_against += goals_b
         team_a.stats[season_id - 1][f"season {season_id}"].goal_difference += (
             goals_a - goals_b
         )
-
+        team_a.update_matches_played("H", team_b.name, goals_a, goals_b)
+        # Update team_b stats
         team_b.stats[season_id - 1][f"season {season_id}"].goals_scored += goals_b
         team_b.stats[season_id - 1][f"season {season_id}"].goals_against += goals_a
         team_b.stats[season_id - 1][f"season {season_id}"].goal_difference += (
             goals_b - goals_a
         )
+        team_b.update_matches_played("A", team_a.name, goals_b, goals_a)
 
         for team in [team_a, team_b]:
             self.normalize_ratings(team.get_players())
@@ -277,7 +280,8 @@ class League:
         """
         game_week_fixtures = self.fixtures.pop(0)
         for home, away in game_week_fixtures:
-            self.play_match(home, away)
+            # self.play_match(home, away)
+            self.simulate_match(home, away, season_id)
 
         # league_snapshot = [team.to_dict() for team in self.teams]
         # save_league_history_to_season_table(league_snapshot, season_id)

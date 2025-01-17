@@ -17,7 +17,6 @@ class Technical(BaseModel):
 
 class Mental(BaseModel):
     Aggression: int = Field(..., ge=1, le=20)
-    Anticipation: int = Field(..., ge=1, le=20)
     Bravery: int = Field(..., ge=1, le=20)
     Composure: int = Field(..., ge=1, le=20)
     Concentration: int = Field(..., ge=1, le=20)
@@ -25,7 +24,6 @@ class Mental(BaseModel):
     Determination: int = Field(..., ge=1, le=20)
     Flair: int = Field(..., ge=1, le=20)
     Leadership: int = Field(..., ge=1, le=20)
-    OffTheBall: int = Field(..., ge=1, le=20)
     Positioning: int = Field(..., ge=1, le=20)
     Teamwork: int = Field(..., ge=1, le=20)
     Vision: int = Field(..., ge=1, le=20)
@@ -33,10 +31,6 @@ class Mental(BaseModel):
 
 
 class Physical(BaseModel):
-    Acceleration: int = Field(..., ge=1, le=20)
-    Agility: int = Field(..., ge=1, le=20)
-    Balance: int = Field(..., ge=1, le=20)
-    JumpingReach: int = Field(..., ge=1, le=20)
     NaturalFitness: int = Field(..., ge=1, le=20)
     Pace: int = Field(..., ge=1, le=20)
     Stamina: int = Field(..., ge=1, le=20)
@@ -52,13 +46,12 @@ class GK(BaseModel):
 
 
 class Intrinsic(BaseModel):
+    Ambition: int = Field(..., ge=1, le=20)  # Lust for Trophy
+    BigGamePlayer: int = Field(..., ge=1, le=20)  # Ability to perform in big games
     Confidence: int = Field(..., ge=1, le=20)  # Ability to get out of a slump
     Consistency: int = Field(..., ge=1, le=20)  # Ability to continue good form
-    Proffesionalism: int = Field(..., ge=1, le=20)  # Ability to be proffessional
-    BigGamePlayer: int = Field(..., ge=1, le=20)  # Ability to perform in big games
     Loyalty: int = Field(..., ge=1, le=20)  # Loyalty to club or nation
-    CareerAmbition: int = Field(..., ge=1, le=20)  # Lust for Trophy
-    MoneyAmbition: int = Field(..., ge=1, le=20)  # Lust for money
+    Proffesionalism: int = Field(..., ge=1, le=20)  # Ability to be proffessional
 
 
 class Attributes(BaseModel):
