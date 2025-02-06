@@ -24,7 +24,7 @@ def generate_roster():
     # Generate players for each required position
     while len(roster) < 11:
         player = generate_player()
-        player.position = player.calculate_best_position()
+        player.position = player.calculate_best_position_and_ability()[0]
         if positions[player.position] > 0:
             roster.append(player)
             positions[player.position] -= 1

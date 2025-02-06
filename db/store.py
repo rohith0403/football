@@ -42,7 +42,8 @@ def create_tables():
             CREATE TABLE IF NOT EXISTS teams (
                 name TEXT PRIMARY KEY,
                 league TEXT,
-                team_ability REAL,
+                offense REAL,
+                defense REAL,
                 budget INTEGER,
                 roster TEXT,
                 stats TEXT,
@@ -112,8 +113,9 @@ def insert_team(team):
     team_data = (
         team.name,
         team.league,
-        team.team_ability,
         team.budget,
+        team.offense,
+        team.defense,
         json.dumps(team.roster),
         json.dumps(team.stats),
         json.dumps(team.current_form),
@@ -122,8 +124,8 @@ def insert_team(team):
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO teams (name, league, team_ability, budget, roster, stats, current_form )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO teams (name, league, budget, offense, defense,  roster, stats, current_form )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             team_data,
         )
@@ -211,12 +213,13 @@ def fetch_all_teams():
                 team = Team(
                     name=row[0],
                     league=row[1],
-                    team_ability=row[2],
-                    budget=row[3],
+                    budget=row[2],
                 )
-                team.roster = json.loads(row[4])
-                team.stats = json.loads(row[5])
-                team.current_form = json.loads(row[6])
+                team.offense = row[3]
+                team.defense = row[4]
+                team.roster = json.loads(row[5])
+                team.stats = json.loads(row[6])
+                team.current_form = json.loads(row[7])
                 teams.append(team)
         except sqlite3.Error as error:
             LOGGER.error("Error fetching teams from teams table: %s", error)

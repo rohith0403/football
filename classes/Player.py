@@ -30,7 +30,9 @@ class Player:
         self.stats = [] if stats is None else stats
         self.form = [] if form is None else form
         if position is None:
-            self.position, self.current_ability = self.calculate_best_position()
+            self.position, self.current_ability = (
+                self.calculate_best_position_and_ability()
+            )
         else:
             self.position = position
             self.current_ability = current_ability
@@ -53,7 +55,7 @@ class Player:
         """
         self.price = new_price
 
-    def calculate_best_position(self) -> str:
+    def calculate_best_position_and_ability(self) -> str:
         """Get the best position of player"""
         all_technical = [
             self.attributes.technical.Crossing,
@@ -70,7 +72,6 @@ class Player:
         ]
         all_mental = [
             self.attributes.mental.Aggression,
-            self.attributes.mental.Anticipation,
             self.attributes.mental.Bravery,
             self.attributes.mental.Composure,
             self.attributes.mental.Concentration,
@@ -177,7 +178,7 @@ class Player:
                     self.attributes.physical.Pace,
                 ],
                 "secondary": [
-                    self.attributes.mental.OffTheBall,
+                    self.attributes.mental.Positioning,
                     self.attributes.mental.Flair,
                     self.attributes.technical.Passing,
                 ],
@@ -190,8 +191,8 @@ class Player:
                 ],
                 "secondary": [
                     self.attributes.technical.Dribbling,
-                    self.attributes.mental.Anticipation,
-                    self.attributes.physical.Acceleration,
+                    self.attributes.mental.Positioning,
+                    self.attributes.physical.Strength,
                 ],
             },
         }

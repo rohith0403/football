@@ -34,7 +34,7 @@ def generate_age():
 def generate_techincal_attributes(range1, range2):
     """Generate Technical Attributes"""
     while True:
-        numbers = [random.randint(1, 20) for _ in range(14)]
+        numbers = [random.randint(1, 20) for _ in range(11)]
         total = sum(numbers)
         if range1 <= total <= range2:
             break
@@ -57,25 +57,23 @@ def generate_techincal_attributes(range1, range2):
 def generate_mental_attributes(range1, range2):
     """Generate Mental attributes"""
     while True:
-        numbers = [random.randint(1, 20) for _ in range(14)]
+        numbers = [random.randint(1, 20) for _ in range(12)]
         total = sum(numbers)
         if range1 <= total <= range2:
             break
     mental_attributes = Mental(
         Aggression=numbers[0],
-        Anticipation=numbers[1],
-        Bravery=numbers[2],
-        Composure=numbers[3],
-        Concentration=numbers[4],
-        Decisions=numbers[5],
-        Determination=numbers[6],
-        Flair=numbers[7],
-        Leadership=numbers[8],
-        OffTheBall=numbers[9],
-        Positioning=numbers[10],
-        Teamwork=numbers[11],
-        Vision=numbers[12],
-        WorkRate=numbers[13],
+        Bravery=numbers[1],
+        Composure=numbers[2],
+        Concentration=numbers[3],
+        Decisions=numbers[4],
+        Determination=numbers[5],
+        Flair=numbers[6],
+        Leadership=numbers[7],
+        Positioning=numbers[8],
+        Teamwork=numbers[9],
+        Vision=numbers[10],
+        WorkRate=numbers[11],
     )
     return mental_attributes
 
@@ -83,19 +81,15 @@ def generate_mental_attributes(range1, range2):
 def generate_physical_attributes(range1, range2):
     """Generate Physical attributes"""
     while True:
-        numbers = [random.randint(1, 20) for _ in range(8)]
+        numbers = [random.randint(1, 20) for _ in range(4)]
         total = sum(numbers)
         if range1 <= total <= range2:
             break
     physical_attributes = Physical(
         Strength=numbers[0],
-        Acceleration=numbers[1],
-        Agility=numbers[2],
-        Balance=numbers[3],
-        JumpingReach=numbers[4],
-        NaturalFitness=numbers[5],
-        Pace=numbers[6],
-        Stamina=numbers[7],
+        NaturalFitness=numbers[1],
+        Pace=numbers[2],
+        Stamina=numbers[3],
     )
     return physical_attributes
 
@@ -121,7 +115,7 @@ def generate_gk_attributes(range1, range2):
 def generate_intrinsic_attributes(range1, range2):
     """Generate Intrinsic attributes"""
     while True:
-        numbers = [random.randint(1, 20) for _ in range(8)]
+        numbers = [random.randint(1, 20) for _ in range(6)]
         total = sum(numbers)
         # if 54 <= total <= 106:
         if range1 <= total <= range2:
@@ -132,9 +126,7 @@ def generate_intrinsic_attributes(range1, range2):
         Proffesionalism=numbers[2],
         BigGamePlayer=numbers[3],
         Loyalty=numbers[4],
-        Versatility=numbers[5],
-        CareerAmbition=numbers[6],
-        MoneyAmbition=numbers[7],
+        Ambition=numbers[5],
     )
     return intrinsic_attributes
 

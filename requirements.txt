@@ -3,3 +3,4 @@ streamlit
 pandas
 pydantic
 pyQt6
+scipy

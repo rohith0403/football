@@ -39,11 +39,11 @@ class Team:
         players = [store.fetch_player_by_id(player_id) for player_id in self.roster]
         return players
 
-    def get_random_player(self, role=None):
+    def get_random_player(self, position=None):
         """Get a random player from the team"""
         players = self.get_players()
-        if role:
-            candidates = [p for p in players if p.role == role]
+        if position:
+            candidates = [p for p in players if p.position == position]
             return random.choice(candidates)
         return random.choice(players)
 
@@ -52,39 +52,39 @@ class Team:
         players = self.get_players()
         offense = (
             sum(
-                player.attributes.technical.finishing
+                player.attributes.technical.Finishing
                 for player in players
-                if player.role != "Goalkeeper"
+                if player.position != "GK"
             )
             + 0.6
             * sum(
-                player.attributes.technical.passing
+                player.attributes.technical.Passing
                 for player in players
-                if player.role != "Goalkeeper"
+                if player.position != "GK"
             )
             + 0.3
             * sum(
                 player.attributes.technical.Long_Shots
                 for player in players
-                if player.role != "Goalkeeper"
+                if player.position != "GK"
             )
             + 0.4
             * sum(
-                player.attributes.technical.heading
+                player.attributes.technical.Heading
                 for player in players
-                if player.role != "Goalkeeper"
+                if player.position != "GK"
             )
             + 0.4
             * sum(
-                player.attributes.technical.crossing
+                player.attributes.technical.Crossing
                 for player in players
-                if player.role != "Goalkeeper"
+                if player.position != "GK"
             )
             + 0.4
             * sum(
-                player.attributes.technical.dribbling
+                player.attributes.technical.Dribbling
                 for player in players
-                if player.role != "Goalkeeper"
+                if player.position != "GK"
             )
             / len(players)
         )
@@ -92,25 +92,25 @@ class Team:
             sum(
                 player.attributes.technical.Tackling
                 for player in players
-                if player.role != "Goalkeeper"
+                if player.position != "GK"
             )
             + 0.6
             * sum(
                 player.attributes.technical.Marking
                 for player in players
-                if player.role != "Goalkeeper"
+                if player.position != "GK"
             )
             + 0.4
             * sum(
                 player.attributes.technical.Heading
                 for player in players
-                if player.role != "Goalkeeper"
+                if player.position != "GK"
             )
             + 0.4
             * sum(
-                player.attributes.technical.Composure
+                player.attributes.mental.Composure
                 for player in players
-                if player.role != "Goalkeeper"
+                if player.position != "GK"
             )
             / len(players)
         )
