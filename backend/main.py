@@ -2,9 +2,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database.database import engine, Base
-from database.crud import initialize_leagues
-from routes.leagues import apirouter
-
+from database.crud import initialize_leagues, initialize_clubs
+from routes.leagues import league_router
+from routes.clubs import club_router
 # Define allowed origins
 origins = [
     "http://localhost:3000",  # Allow frontend running on localhost
@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
     print("Initializing database...")
     Base.metadata.create_all(bind=engine)  # Creates tables if they don't exist
     initialize_leagues()
+    initialize_clubs()
     yield  # Hand over control to the app
     print("Shutting down...")
 
@@ -33,7 +34,8 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-app.include_router(apirouter, tags=["Leagues"])
+app.include_router(league_router, tags=["Leagues"])
+app.include_router(club_router, tags=["Clubs"])
 
 @app.get("/")
 async def root():

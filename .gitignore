@@ -1,4 +1,3 @@
 env
-.devdbrc
-league_simulation.db
+backend/database.db
 __pycache__

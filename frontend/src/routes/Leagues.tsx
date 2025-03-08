@@ -1,5 +1,4 @@
-import { Component } from 'solid-js';
-import { createSignal, createResource, Switch, Match, Show } from "solid-js";
+import { Component, createResource } from 'solid-js';
 import styles from "./Leagues.module.css";
 
 type League = {

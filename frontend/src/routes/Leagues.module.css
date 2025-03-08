@@ -1,16 +1,47 @@
 .table {
-    width: 25%;
-    border-collapse: collapse;
-  }
-  
-  .table th, .table td {
-    border: 1px solid white;
-    padding: 8px;
-  }
-  
-  .table th {
-    background-color: white;
-    color: black;
-    border: 1px solid black;
-  }
-  
+  width: 25%;
+  border-collapse: collapse;
+  margin: 0 auto; /* Centers the table */
+  table-layout: auto; /* Allows columns to adjust dynamically */
+}
+
+.table th, .table td {
+  border: 1px solid white;
+  padding: 8px;
+  text-align: left; /* Optional: Align text to the left */
+  white-space: nowrap; /* Optional: Prevent text from wrapping */
+}
+
+.table th {
+  background-color: white;
+  color: black;
+  border: 1px solid black;
+}
+
+.controls {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  gap: 10px; /* Add spacing between elements */
+  margin-bottom: 10px;
+}
+
+.searchBox {
+  padding: 8px;
+  width: 15.5vw;
+  height: 20px; /* Ensure both have the same height */
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+}
+.dropdown {
+  padding: 8px;
+  height: 40px; /* Ensures height */
+  display: flex;
+  align-items: center;
+  font-size: 16px; /* Adjusts text size to match */
+  appearance: none; /* Removes default browser styling */
+  border: 1px solid #ccc;
+  background-color: white;
+  text-align: center;
+}

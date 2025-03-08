@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database.database import SessionLocal
 import database.crud as crud
 
-apirouter = APIRouter()
+league_router = APIRouter()
 
 def get_db():
     db = SessionLocal()
@@ -12,7 +12,7 @@ def get_db():
     finally:
         db.close()
 
-@apirouter.get('/get_all_leagues')
+@league_router.get('/get_all_leagues')
 async def get_all_leagues(db: Session = Depends(get_db)):
     """Returns all leagues"""
     return crud.get_all_leagues(db)
