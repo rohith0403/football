@@ -12,7 +12,7 @@ def get_db():
     finally:
         db.close()
 
-@apirouter.get('/leagues')
+@apirouter.get('/get_all_leagues')
 async def get_all_leagues(db: Session = Depends(get_db)):
     """Returns all leagues"""
-    return crud.get_users(db)
+    return crud.get_all_leagues(db)

@@ -12,6 +12,10 @@ def create_user(db: Session, name: str, email: str):
 def get_users(db: Session):
     return db.query(User).all()
 
+def get_all_leagues(db: Session):
+    """Fetches all leagues from DB"""
+    return db.query(League).all()
+
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
 
