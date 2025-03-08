@@ -1,5 +1,5 @@
 from classes.League import League
-from db.store import insert_league
+from db.legacy_store import insert_league
 
 
 def initialize_league():

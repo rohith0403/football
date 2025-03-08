@@ -1,5 +1,5 @@
 from classes.Team import Team
-from db.store import insert_player, insert_team
+from db.legacy_store import insert_player, insert_team
 from initializers.player_initializer import generate_player
 
 

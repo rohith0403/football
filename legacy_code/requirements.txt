@@ -1,6 +1,5 @@
 numpy
-streamlit
 pandas
 pydantic
-pyQt6
 scipy
+django
