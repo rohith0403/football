@@ -1,13 +1,3 @@
-Install the packages in the requirements.txt with the command:
-
-pip install -r requirements.txt
-
-
-To run the application, run the command:
-
-streamlit run main.py
-
-
 In Version v1:
 
 A simple application with the following features:
@@ -36,3 +26,14 @@ In Version (v2):
 
 Major updates post v2:
 - Add players, budget to teams, multiple leagues, reinforcement learning models
+
+                                // CHANGE OF PLANS //
+
+As of now, the tech stack has changed from just python application to a full stack application with 
+SolidJS, fastapi and SQLite. 
+
+Features added:
+1. Two leagues are added.
+2. Clubs are added for the respective leagues.
+3. Players are added for each club on startup.
+4. A view has been added to each to view on the frontend.
