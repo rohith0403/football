@@ -1,5 +1,5 @@
 import { Component, createResource, createSignal, createMemo } from 'solid-js';
-import styles from "./Leagues.module.css";
+import styles from "./Routes.module.css";
 
 type Club = {
     id: number;

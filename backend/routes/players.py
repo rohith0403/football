@@ -5,7 +5,7 @@ from database.database import SessionLocal
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-club_router = APIRouter()
+player_router = APIRouter()
 
 
 def get_db():
@@ -16,15 +16,16 @@ def get_db():
         db.close()
 
 
-@club_router.get("/get_all_clubs")
+@player_router.get("/get_all_players")
 async def get_all_clubs(db: Session = Depends(get_db)) -> list[dict[str, Any]]:
     """Returns all leagues"""
-    clubs = crud.get_all_clubs(db)
+    players = crud.get_all_players(db)
     return [
         {
-            "id": club.id,
-            "name": club.name,
-            "league": club.league.name,  # Access League name
+            "id": player.id,
+            "name": player.name,
+            "age": player.age,
+            "club": player.club.name,
         }
-        for club in clubs
+        for player in players
     ]

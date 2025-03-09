@@ -1,11 +1,10 @@
 import { Component, createResource } from 'solid-js';
-import styles from "./Leagues.module.css";
+import styles from "./Routes.module.css";
 
 type League = {
     id: number;
     name: string;
 };
-
 
 const fetch_all_leagues = async () => {
     const response = await fetch(`http://localhost:8000/get_all_leagues`);

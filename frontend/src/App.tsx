@@ -1,10 +1,7 @@
 import type { Component } from 'solid-js';
-import { Router, Route } from '@solidjs/router';
 import styles from './App.module.css';
 
-import Leagues from './routes/Leagues';
-import Clubs from './routes/Clubs';
-import Players from './routes/Players';
+import Routes from './routes/Routes';
 
 const App: Component = () => {
   return (
@@ -13,11 +10,7 @@ const App: Component = () => {
       <a href='/clubs'>Clubs</a>
       <a href='/players'>Players</a>
       <hr class={styles.separator} />
-      <Router>
-        <Route path="/leagues" component={Leagues} />
-        <Route path="/clubs" component={Clubs} />
-        <Route path="players" component={Players} />
-      </Router>
+      <Routes/>
     </div>
 
   );
