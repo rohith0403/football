@@ -45,7 +45,7 @@ const Players: Component = () => {
             <div class={styles.controls}>
                 <input
                     type="text"
-                    placeholder="Search Club..."
+                    placeholder="Search Players..."
                     onInput={(e) => setSearch(e.currentTarget.value)}
                     class={styles.searchBox}
                 />
@@ -59,7 +59,6 @@ const Players: Component = () => {
                     ))}
                 </select>
             </div>
-            {/* Clubs Table */}
             <table class={styles.table}>
                 <thead>
                     <tr>
@@ -72,7 +71,7 @@ const Players: Component = () => {
                 <tbody>
                     {players.loading ? (
                         <tr>
-                            <td colspan="3">Loading...</td>
+                            <td colspan="4">Loading...</td>
                         </tr>
                     ) : filteredPlayer().length > 0 ? (
                         filteredPlayer().map((player: Player) => (
@@ -85,7 +84,7 @@ const Players: Component = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colspan="3">No results found</td>
+                            <td colspan="4">No results found</td>
                         </tr>
                     )}
                 </tbody>
