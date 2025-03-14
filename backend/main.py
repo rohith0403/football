@@ -1,6 +1,12 @@
 from contextlib import asynccontextmanager
 
-from database.crud import initialize_clubs, initialize_leagues, initialize_players
+from database.crud import (
+    initialize_clubs,
+    initialize_league_table,
+    initialize_leagues,
+    initialize_players,
+    initialize_seasons,
+)
 from database.database import Base, engine
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,6 +29,7 @@ async def lifespan(app: FastAPI):
     initialize_leagues()
     initialize_clubs()
     initialize_players()
+    initialize_seasons()
     yield  # Hand over control to the app
     print("Shutting down...")
 
