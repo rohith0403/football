@@ -2,6 +2,7 @@ import type { Component } from 'solid-js';
 import styles from './App.module.css';
 
 import Routes from './routes/Routes';
+import GameMenu from './components/GameMenu'
 
 const App: Component = () => {
   return (
@@ -11,17 +12,7 @@ const App: Component = () => {
       <a href='/players'>Players</a>
       <hr class={styles.separator} />
       <Routes/> */}
-
-      <h1 class={styles.gameMenuTitle}>Football Sim</h1>
-      <div class={styles.gameMenuButtons}>
-        <button classList={{ [styles.gameMenuButton]: true, [styles.gameMenuContinue]: true }}>
-          Continue
-        </button>
-        <button classList={{ [styles.gameMenuButton]: true, [styles.gameMenuNewGame]: true }}>
-          New Game
-        </button>
-      </div>
-
+      <GameMenu />
     </div>
 
   );

@@ -1,0 +1,80 @@
+.GameMenu {
+    text-align: center;
+    margin-top: -15vh;
+    /* Pushes everything down by 10% of the viewport height */
+}
+/* Title */
+.gameMenuTitle {
+    font-size: 42px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 20px;
+}
+
+/* Button Wrapper */
+.gameMenuButtons {
+    display: flex;
+    flex-direction: column;
+    width: 50vh;
+    gap: 15px;
+}
+
+/* Buttons */
+.gameMenuButton {
+    position: relative;
+    /* Needed for pseudo-element positioning */
+    padding: 12px 24px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    border-color: #ffffff;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    overflow: visible;
+    /* Ensure pseudo-element isn't clipped */
+}
+
+/* Underline Effect */
+.gameMenuButton::before {
+    content: "";
+    position: absolute;
+    bottom: 0px;
+    /* Moves it inside the button (at the very bottom) */
+    left: 50%;
+    width: 0%;
+    height: 3px;
+    /* Thickness of the underline */
+    background-color: yellow;
+    transition: width 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.gameMenuButton:hover::before {
+    width: 80%;
+    /* Expands when hovered */
+}
+
+/* Continue Button */
+.gameMenuContinue {
+    /* background-color: #007bff; */
+    background-color: #121212;
+}
+
+.gameMenuContinue:hover {
+    /* background-color: #0056b3; */
+    background-color: #121212;
+
+}
+
+/* New Game Button */
+.gameMenuNewGame {
+    /* background-color: #28a745; */
+    background-color: #121212;
+
+}
+
+.gameMenuNewGame:hover {
+    /* background-color: #1e7e34; */
+    background-color: #121212;
+
+}
