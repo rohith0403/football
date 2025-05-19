@@ -10,23 +10,45 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "players")
 public class Player {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     @Column(name = "name")
     private String name;
 
     @Column(name = "nationality")
     private String nationality;
+
+    @Column(name = "attack")
+    private int attack;
+
+    @Column(name = "midfield")
+    private int midfield;
+
+    @Column(name = "defense")
+    private int defense;
+
+    public long getId() {
+        return this.id;
+    }
+
+    public Player() {
+        // no-arg constructor required by Hibernate
+    }
+
+    public Player(String name, String nationality) {
+        this.name = name;
+        this.nationality = nationality;
+    }
+
+    public Player(String name, String nationality, int attack, int defense) {
+        this.name = name;
+        this.nationality = nationality;
+        this.attack = attack;
+        this.defense = defense;
+    }
 
     public String getName() {
         return this.name;
@@ -43,5 +65,29 @@ public class Player {
     public void setNationality(String nationality) {
         this.nationality = nationality;
     }
-        
+
+    public Integer getAttack() {
+        return this.attack;
+    }
+
+    public void setAttack(int attack) {
+        this.attack = attack;
+    }
+
+    public Integer getDefense() {
+        return this.defense;
+    }
+
+    public void setDefense(int defense) {
+        this.defense = defense;
+    }
+
+    public int getMidfield() {
+        return this.midfield;
+    }
+
+    public void setMidfield(int midfield) {
+        this.midfield = midfield;
+    }
+
 }
