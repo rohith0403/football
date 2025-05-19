@@ -10,6 +10,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@Entity // Marks this class as a database entity
+@Table(name = "players") // Specifies the table name (optional, defaults to class name)
 public class Team {
 
     @Id
@@ -24,11 +29,11 @@ public class Team {
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<Player> squad = new ArrayList<>();
-    
-    
+
     public Team() {
         // no-arg constructor required by Hibernate
     }
+
     public Team(String name, String league) {
         this.name = name;
         this.league = league;
@@ -67,5 +72,5 @@ public class Team {
         // This is just a placeholder method. You can implement your own logic here.
         System.out.println("Generating attributes for team: " + this.name);
     }
-    
+
 }
