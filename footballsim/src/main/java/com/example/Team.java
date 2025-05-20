@@ -11,10 +11,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Table;
 
 @Entity // Marks this class as a database entity
-@Table(name = "players") // Specifies the table name (optional, defaults to class name)
+@Table(name = "teams") // Specifies the table name (optional, defaults to class name)
 public class Team {
 
     @Id
@@ -27,7 +28,7 @@ public class Team {
     @Column(name = "league")
     private String league;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = false)
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
     private List<Player> squad = new ArrayList<>();
 
     public Team() {

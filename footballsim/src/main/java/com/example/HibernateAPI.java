@@ -8,7 +8,7 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
-public class HibernateAPI_postgres {
+public class HibernateAPI {
 
     public static void main(String[] args) { // Added main method
 
