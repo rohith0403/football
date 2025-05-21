@@ -1,4 +1,4 @@
-package com.example;
+package com.example.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,8 +102,4 @@ public class League {
         return schedule;
     }
 
-    public static void simulateMatch(Team team1, Team team2) {
-        // Logic to simulate a match between two teams
-        // This could involve randomizing the outcome based on player stats
-    }
 }

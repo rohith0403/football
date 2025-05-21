@@ -8,6 +8,8 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
+import com.example.model.Player;
+
 public class HibernateAPI {
 
     public static void main(String[] args) { // Added main method

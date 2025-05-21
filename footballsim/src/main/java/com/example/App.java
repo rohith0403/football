@@ -8,6 +8,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import com.example.model.League;
+import com.example.model.Match;
+import com.example.model.Player;
+import com.example.model.Team;
+
 public class App {
     public static void main(String[] args) {
 
@@ -155,5 +160,11 @@ public class App {
             factory.close();
         }
 
+    }
+
+    public static void resetDatabase() {
+        clearDB();
+        generatePremierLeagueTeams();
+        saveFixtures();
     }
 }

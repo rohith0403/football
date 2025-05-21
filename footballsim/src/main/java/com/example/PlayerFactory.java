@@ -1,5 +1,7 @@
 package com.example;
 
+import com.example.model.Goalkeeper;
+import com.example.model.Player;
 import com.github.javafaker.Faker;
 
 public class PlayerFactory {
@@ -27,7 +29,7 @@ public class PlayerFactory {
         );
     }
 
-    public static Player createStriker() {
+    public static Player createAttacker() {
         return new Player(
                 faker.name().fullName(),
                 faker.country().name(),
@@ -43,5 +45,14 @@ public class PlayerFactory {
                 faker.number().numberBetween(1, 6),
                 faker.number().numberBetween(7, 10), // high attack
                 faker.number().numberBetween(1, 6));
+    }
+
+    public static Player createGoalkeeper() {
+        return new Goalkeeper(
+                faker.name().fullName(),
+                faker.country().name(),
+                faker.number().numberBetween(1, 4),
+                faker.number().numberBetween(1, 4),
+                faker.number().numberBetween(7, 10)); // high defense
     }
 }
