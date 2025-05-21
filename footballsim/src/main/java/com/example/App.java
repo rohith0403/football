@@ -2,6 +2,7 @@ package com.example;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -9,13 +10,6 @@ import org.hibernate.cfg.Configuration;
 
 public class App {
     public static void main(String[] args) {
-        // Clear the database before generating new teams
-        // clearDB();
-        // Generate and save Premier League teams
-        // generatePremierLeagueTeams();
-
-        List<Team> teams = getAllTeams();
-        League.generateSchedule(teams);
 
     }
 
@@ -91,6 +85,8 @@ public class App {
         SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
                 .addAnnotatedClass(Player.class)
                 .addAnnotatedClass(Team.class)
+                .addAnnotatedClass(Match.class) // <--- add this
+
                 .buildSessionFactory();
 
         try (Session session = factory.openSession()) {
@@ -98,10 +94,12 @@ public class App {
 
             session.createMutationQuery("DELETE FROM Player").executeUpdate();
             session.createMutationQuery("DELETE FROM Team").executeUpdate();
+            session.createMutationQuery("DELETE FROM Match").executeUpdate();
 
             // Reset sequences
             session.createNativeQuery("ALTER SEQUENCE players_id_seq RESTART WITH 1", Void.class).executeUpdate();
             session.createNativeQuery("ALTER SEQUENCE teams_id_seq RESTART WITH 1", Void.class).executeUpdate();
+            session.createNativeQuery("ALTER SEQUENCE matches_id_seq RESTART WITH 1", Void.class).executeUpdate();
 
             session.getTransaction().commit();
         } finally {
@@ -115,6 +113,7 @@ public class App {
         SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
                 .addAnnotatedClass(Team.class)
                 .addAnnotatedClass(Player.class)
+                .addAnnotatedClass(Match.class) // <--- add this
                 .buildSessionFactory();
 
         try (Session session = factory.openSession()) {
@@ -127,5 +126,34 @@ public class App {
         }
 
         return teams;
+    }
+
+    public static void saveFixtures() {
+        List<Team> teams = getAllTeams();
+        List<List<Match>> matches = League.generateSchedule(teams);
+
+        List<Match> allMatches = matches.stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+
+        SessionFactory factory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Team.class)
+                .addAnnotatedClass(Match.class)
+                .buildSessionFactory();
+
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
+
+            // save all matches
+            for (Match match : allMatches) {
+                session.persist(match);
+            }
+
+            session.getTransaction().commit();
+        } finally {
+            factory.close();
+        }
+
     }
 }

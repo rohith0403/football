@@ -23,58 +23,7 @@ public class League {
         return instance;
     }
 
-    // public static void generateSchedule(List<Team> teams) {
-    // // Logic to generate the league schedule
-    // // This could involve creating match fixtures based on the teams in the
-    // league
-    // Collections.shuffle(teams, new Random(42));
-    // int numTeams = teams.size();
-    // int totalRounds = (numTeams - 1) * 2; // double round robin
-    // int matchesPerRound = numTeams / 2;
-
-    // List<List<Match>> schedule = new ArrayList<>();
-
-    // // Generate first half of the schedule (round-robin)
-    // List<Team> rotation = new ArrayList<>(teams);
-    // for (int round = 0; round < numTeams - 1; round++) {
-    // List<Match> matches = new ArrayList<>();
-    // for (int match = 0; match < matchesPerRound; match++) {
-    // Team home = rotation.get(match);
-    // Team away = rotation.get(numTeams - 1 - match);
-
-    // if (home != null && away != null) {
-    // matches.add(new Match(home, away, round + 1));
-    // }
-    // }
-    // schedule.add(matches);
-
-    // // Rotate teams (except first)
-    // rotation.add(1, rotation.remove(rotation.size() - 1));
-    // }
-
-    // // Generate second half by swapping home and away, rounds continue
-    // for (int round = 0; round < numTeams - 1; round++) {
-    // List<Match> matches = new ArrayList<>();
-    // for (Match m : schedule.get(round)) {
-    // matches.add(new Match(m.getAwayTeam(), m.getHomeTeam(), round + 1 + (numTeams
-    // - 1)));
-    // }
-    // schedule.add(matches);
-    // }
-
-    // // Print schedule
-    // for (List<Match> round : schedule) {
-    // System.out.println("Week " + round.get(0).getWeek() + ":");
-    // for (Match m : round) {
-    // System.out.println(m.getHomeTeam().getName() + " vs " +
-    // m.getAwayTeam().getName());
-    // }
-    // System.out.println();
-    // }
-
-    // }
-
-    public static void generateSchedule(List<Team> teams) {
+    public static List<List<Match>> generateSchedule(List<Team> teams) {
         Collections.shuffle(teams); // true randomness every time
         int numTeams = teams.size();
         int matchesPerRound = numTeams / 2;
@@ -150,6 +99,7 @@ public class League {
             }
             System.out.println();
         }
+        return schedule;
     }
 
     public static void simulateMatch(Team team1, Team team2) {
