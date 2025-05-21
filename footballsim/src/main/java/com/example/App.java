@@ -2,32 +2,24 @@ package com.example;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 public class App {
     public static void main(String[] args) {
-        // SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
-        //         .addAnnotatedClass(Player.class)
-        //         .buildSessionFactory();
+        // Clear the database before generating new teams
+        // clearDB();
+        // Generate and save Premier League teams
+        // generatePremierLeagueTeams();
 
-        // Session session = factory.openSession();
-        // try {
-        //     Player player1 = new Player("Player 1", "ENG");
-        //     System.out.println(player1);
-        //     session.beginTransaction();
-        //     session.persist(player1);
-        //     session.getTransaction().commit();
+        List<Team> teams = getAllTeams();
+        League.generateSchedule(teams);
 
-        //     System.out.println("User saved with ID: " + player1.getId());
-        // } finally {
-        //     factory.close();
-        // }
-        generateTeams();
     }
 
-    public static void generateTeams() {
+    public static void generatePremierLeagueTeams() {
         // Configure Hibernate and build SessionFactory
         SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
                 .addAnnotatedClass(Team.class) // Make sure your Team class is annotated or mapped
@@ -56,6 +48,7 @@ public class App {
             for (String teamName : premierLeagueTeams) {
                 Team team = new Team(teamName, "Premier League");
                 session.persist(team); // Use persist for new entities
+                populateTeamSquad(team); // Populate the squad with players
                 System.out.println("Persisted team: " + team.getName());
             }
 
@@ -81,5 +74,58 @@ public class App {
             }
             System.out.println("SessionFactory and Session closed.");
         }
+    }
+
+    public static void populateTeamSquad(Team team) {
+        // This method should populate the squad of the team with players
+        // You can implement your own logic here to add players to the team
+        System.out.println("Populating squad for team: " + team.getName());
+        for (int i = 0; i < 25; i++) {
+            Player player = PlayerFactory.createRandomPlayer();
+            player.setTeam(team); // Set the team for the player
+            team.getSquad().add(player); // Add player to the team's squad
+        }
+    }
+
+    public static void clearDB() {
+        SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Player.class)
+                .addAnnotatedClass(Team.class)
+                .buildSessionFactory();
+
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
+
+            session.createMutationQuery("DELETE FROM Player").executeUpdate();
+            session.createMutationQuery("DELETE FROM Team").executeUpdate();
+
+            // Reset sequences
+            session.createNativeQuery("ALTER SEQUENCE players_id_seq RESTART WITH 1", Void.class).executeUpdate();
+            session.createNativeQuery("ALTER SEQUENCE teams_id_seq RESTART WITH 1", Void.class).executeUpdate();
+
+            session.getTransaction().commit();
+        } finally {
+            factory.close(); // <== important
+        }
+    }
+
+    public static List<Team> getAllTeams() {
+        List<Team> teams;
+
+        SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Team.class)
+                .addAnnotatedClass(Player.class)
+                .buildSessionFactory();
+
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
+
+            // HQL query to get all teams
+            teams = session.createQuery("FROM Team", Team.class).getResultList();
+
+            session.getTransaction().commit();
+        }
+
+        return teams;
     }
 }

@@ -36,8 +36,17 @@ public class Player {
     // This defines the many-to-one relationship from Player to Team.
     // This is the owning side, so the foreign key will be in the 'players' table.
     @ManyToOne(fetch = FetchType.LAZY) // Many players belong to one team. Lazy fetching is default and good.
-    @JoinColumn(name = "team_id", nullable = false) // This creates the 'team_id' foreign key column in the 'players' table
+    @JoinColumn(name = "team_id", nullable = true) // This creates the 'team_id' foreign key column in the 'players'
+                                                   // table
     private Team team; // The field that holds the reference to the Team entity
+
+    public Team getTeam() {
+        return this.team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
+    }
 
     public long getId() {
         return this.id;
@@ -52,10 +61,11 @@ public class Player {
         this.nationality = nationality;
     }
 
-    public Player(String name, String nationality, int attack, int defense) {
+    public Player(String name, String nationality, int attack, int midfield, int defense) {
         this.name = name;
         this.nationality = nationality;
         this.attack = attack;
+        this.midfield = midfield;
         this.defense = defense;
     }
 
