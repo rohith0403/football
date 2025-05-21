@@ -15,7 +15,7 @@ public class PlayerFactory {
         int midfield = faker.number().numberBetween(1, 10);
         int defense = faker.number().numberBetween(1, 10);
 
-        return new Player(name, nationality, attack, midfield, defense);
+        return new Player(name, nationality, "", attack, midfield, defense);
     }
 
     // Optionally add more methods for specific player types
@@ -23,6 +23,7 @@ public class PlayerFactory {
         return new Player(
                 faker.name().fullName(),
                 faker.country().name(),
+                "DEFENDER",
                 faker.number().numberBetween(1, 4), // low attack
                 faker.number().numberBetween(1, 6), // average midfield
                 faker.number().numberBetween(7, 10) // high defense
@@ -33,6 +34,7 @@ public class PlayerFactory {
         return new Player(
                 faker.name().fullName(),
                 faker.country().name(),
+                "ATTACKER",
                 faker.number().numberBetween(7, 10), // high attack
                 faker.number().numberBetween(1, 6),
                 faker.number().numberBetween(1, 4));
@@ -42,8 +44,9 @@ public class PlayerFactory {
         return new Player(
                 faker.name().fullName(),
                 faker.country().name(),
+                "MIDFIELDER",
                 faker.number().numberBetween(1, 6),
-                faker.number().numberBetween(7, 10), // high attack
+                faker.number().numberBetween(7, 10), // high midfield
                 faker.number().numberBetween(1, 6));
     }
 
@@ -51,6 +54,7 @@ public class PlayerFactory {
         return new Goalkeeper(
                 faker.name().fullName(),
                 faker.country().name(),
+                "GOALKEEPER",
                 faker.number().numberBetween(1, 4),
                 faker.number().numberBetween(1, 4),
                 faker.number().numberBetween(7, 10)); // high defense

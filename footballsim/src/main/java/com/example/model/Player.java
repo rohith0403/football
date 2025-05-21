@@ -38,6 +38,9 @@ public class Player {
     @Column(name = "defense")
     private int defense;
 
+    @Column(name = "position")
+    private String position;
+
     // This defines the many-to-one relationship from Player to Team.
     // This is the owning side, so the foreign key will be in the 'players' table.
     @ManyToOne(fetch = FetchType.LAZY) // Many players belong to one team. Lazy fetching is default and good.
@@ -66,7 +69,13 @@ public class Player {
         this.nationality = nationality;
     }
 
-    public Player(String name, String nationality, int attack, int midfield, int defense) {
+    public Player(String name, String nationality, String position) {
+        this.name = name;
+        this.nationality = nationality;
+        this.position = position;
+    }
+
+    public Player(String name, String nationality, String position, int attack, int midfield, int defense) {
         this.name = name;
         this.nationality = nationality;
         this.attack = attack;
@@ -114,4 +123,11 @@ public class Player {
         this.midfield = midfield;
     }
 
+    public String getPosition() {
+        return this.position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
 }

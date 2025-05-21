@@ -14,8 +14,8 @@ public class Goalkeeper extends Player {
         super();
     }
 
-    public Goalkeeper(String name, String nationality, int diving, int handling, int reflexes) {
-        super(name, nationality);
+    public Goalkeeper(String name, String nationality, String position, int diving, int handling, int reflexes) {
+        super(name, nationality, position);
         this.diving = diving;
         this.handling = handling;
         this.reflexes = reflexes;

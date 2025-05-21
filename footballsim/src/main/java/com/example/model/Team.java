@@ -1,6 +1,8 @@
 package com.example.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -29,6 +31,48 @@ public class Team {
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
     private List<Player> squad = new ArrayList<>();
+
+    // Team attributes
+    @Column(name = "attack")
+    private int attack;
+    @Column(name = "midfield")
+    private int midfield;
+    @Column(name = "defense")
+    private int defense;
+    @Column(name = "goalkeepeing")
+    private int goalkeeping;
+
+    public int getAttack() {
+        return attack;
+    }
+
+    public void setAttack(int attack) {
+        this.attack = attack;
+    }
+
+    public int getMidfield() {
+        return midfield;
+    }
+
+    public void setMidfield(int midfield) {
+        this.midfield = midfield;
+    }
+
+    public int getDefense() {
+        return defense;
+    }
+
+    public void setDefense(int defense) {
+        this.defense = defense;
+    }
+
+    public int getGoalkeeping() {
+        return goalkeeping;
+    }
+
+    public void setGoalkeeping(int goalkeeping) {
+        this.goalkeeping = goalkeeping;
+    }
 
     // Team stats
     @Column(name = "wins")
@@ -300,9 +344,58 @@ public class Team {
     }
 
     public void generateAttributes() {
-        // Generate attributes for the team
-        // This is just a placeholder method. You can implement your own logic here.
         System.out.println("Generating attributes for team: " + this.name);
+
+        List<Player> gks = new ArrayList<>();
+        List<Player> defs = new ArrayList<>();
+        List<Player> mids = new ArrayList<>();
+        List<Player> atts = new ArrayList<>();
+
+        for (Player player : this.squad) {
+            if (player instanceof Goalkeeper) {
+                gks.add(player);
+            } else {
+                String pos = player.getPosition(); // "Defender", "Midfielder", "Attacker"
+                switch (pos) {
+                    case "DEFENDER" -> defs.add(player);
+                    case "MIDFIELDER" -> mids.add(player);
+                    case "ATTACKER" -> atts.add(player);
+                }
+
+            }
+        }
+
+        // Sort by relevant stats
+        gks.sort(Comparator.comparingInt(
+                p -> ((Goalkeeper) p).getDiving() + ((Goalkeeper) p).getReflexes() + ((Goalkeeper) p).getHandling()));
+        Collections.reverse(gks); // highest first
+
+        defs.sort(Comparator.comparingInt(Player::getDefense).reversed());
+        mids.sort(Comparator.comparingInt(Player::getMidfield).reversed());
+        atts.sort(Comparator.comparingInt(Player::getAttack).reversed());
+
+        List<Player> top11 = new ArrayList<>();
+        if (!gks.isEmpty())
+            top11.add(gks.get(0)); // 1 GK
+        top11.addAll(defs.stream().limit(4).toList()); // 4 DEF
+        top11.addAll(mids.stream().limit(3).toList()); // 3 MID
+        top11.addAll(atts.stream().limit(3).toList()); // 3 ATT
+
+        // Compute averages
+        int totalAttack = 0, totalMid = 0, totalDef = 0;
+        for (Player p : top11) {
+            totalAttack += p.getAttack();
+            totalMid += p.getMidfield();
+            totalDef += p.getDefense();
+        }
+
+        int size = top11.size();
+        this.setAttack(totalAttack / size);
+        this.setMidfield(totalMid / size);
+        this.setDefense(totalDef / size);
+
+        System.out.printf("Team %s - Avg Attack: %d, Midfield: %d, Defense: %d\n",
+                name, this.getAttack(), this.getMidfield(), this.getDefense());
     }
 
 }

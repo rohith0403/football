@@ -12,10 +12,11 @@ import com.example.model.League;
 import com.example.model.Match;
 import com.example.model.Player;
 import com.example.model.Team;
+import com.example.util.SquadGenerator;
 
 public class App {
     public static void main(String[] args) {
-
+        resetDatabase();
     }
 
     public static void generatePremierLeagueTeams() {
@@ -47,7 +48,7 @@ public class App {
             for (String teamName : premierLeagueTeams) {
                 Team team = new Team(teamName, "Premier League");
                 session.persist(team); // Use persist for new entities
-                populateTeamSquad(team); // Populate the squad with players
+                SquadGenerator.generateSquadForTeam(team); // Populate the squad with players
                 System.out.println("Persisted team: " + team.getName());
             }
 
@@ -72,17 +73,6 @@ public class App {
                 factory.close();
             }
             System.out.println("SessionFactory and Session closed.");
-        }
-    }
-
-    public static void populateTeamSquad(Team team) {
-        // This method should populate the squad of the team with players
-        // You can implement your own logic here to add players to the team
-        System.out.println("Populating squad for team: " + team.getName());
-        for (int i = 0; i < 25; i++) {
-            Player player = PlayerFactory.createRandomPlayer();
-            player.setTeam(team); // Set the team for the player
-            team.getSquad().add(player); // Add player to the team's squad
         }
     }
 
