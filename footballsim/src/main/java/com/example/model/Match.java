@@ -1,5 +1,7 @@
 package com.example.model;
 
+import java.util.Random;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -66,6 +68,40 @@ public class Match {
 
     public int getWeek() {
         return week;
+    }
+
+    public void playMatch(Match match) {
+        Team homeTeam = match.getHomeTeam();
+        Team awayTeam = match.getAwayTeam();
+
+        // Base score calculation using team ratings
+        double homeBaseScore = (homeTeam.getAttack() * 0.4 +
+                homeTeam.getMidfield() * 0.3 +
+                homeTeam.getDefense() * 0.3) * 1.2; // Home advantage
+
+        double awayBaseScore = (awayTeam.getAttack() * 0.4 +
+                awayTeam.getMidfield() * 0.3 +
+                awayTeam.getDefense() * 0.3);
+
+        // Add randomness (gaussian distribution for more realistic scores)
+        Random random = new Random();
+        double homeRandomFactor = random.nextGaussian() * 0.5 + 1.0;
+        double awayRandomFactor = random.nextGaussian() * 0.5 + 1.0;
+
+        // Calculate final scores
+        int finalHomeScore = (int) Math.round(homeBaseScore * homeRandomFactor);
+        int finalAwayScore = (int) Math.round(awayBaseScore * awayRandomFactor);
+
+        // Ensure non-negative scores
+        finalHomeScore = Math.max(0, finalHomeScore);
+        finalAwayScore = Math.max(0, finalAwayScore);
+
+        // Set the scores
+        match.setHomeScore(finalHomeScore);
+        match.setAwayScore(finalAwayScore);
+
+        // Update match statistics
+        updateStats(match);
     }
 
     public static void updateStats(Match match) {

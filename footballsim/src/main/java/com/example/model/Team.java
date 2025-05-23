@@ -375,26 +375,27 @@ public class Team {
         atts.sort(Comparator.comparingInt(Player::getAttack).reversed());
 
         List<Player> top11 = new ArrayList<>();
-        if (!gks.isEmpty())
-            top11.add(gks.get(0)); // 1 GK
-        top11.addAll(defs.stream().limit(4).toList()); // 4 DEF
-        top11.addAll(mids.stream().limit(3).toList()); // 3 MID
-        top11.addAll(atts.stream().limit(3).toList()); // 3 ATT
+        Player bestGK = !gks.isEmpty() ? gks.get(0) : null;
+        List<Player> topDefs = defs.stream().limit(4).toList();
+        List<Player> topMids = mids.stream().limit(3).toList();
+        List<Player> topAtts = atts.stream().limit(3).toList();
 
-        // Compute averages
-        int totalAttack = 0, totalMid = 0, totalDef = 0;
-        for (Player p : top11) {
-            totalAttack += p.getAttack();
-            totalMid += p.getMidfield();
-            totalDef += p.getDefense();
-        }
+        if (bestGK != null)
+            top11.add(bestGK);
+        top11.addAll(topDefs);
+        top11.addAll(topMids);
+        top11.addAll(topAtts);
 
-        int size = top11.size();
-        this.setAttack(totalAttack / size);
-        this.setMidfield(totalMid / size);
-        this.setDefense(totalDef / size);
+        // Compute averages **only within each role**
+        int attackAvg = (int) topAtts.stream().mapToInt(Player::getAttack).average().orElse(0);
+        int midAvg = (int) topMids.stream().mapToInt(Player::getMidfield).average().orElse(0);
+        int defAvg = (int) topDefs.stream().mapToInt(Player::getDefense).average().orElse(0);
 
-        System.out.printf("Team %s - Avg Attack: %d, Midfield: %d, Defense: %d\n",
+        this.setAttack(attackAvg);
+        this.setMidfield(midAvg);
+        this.setDefense(defAvg);
+
+        System.out.printf("Team %s - Attack: %d, Midfield: %d, Defense: %d\n",
                 name, this.getAttack(), this.getMidfield(), this.getDefense());
     }
 

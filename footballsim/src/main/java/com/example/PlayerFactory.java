@@ -24,9 +24,9 @@ public class PlayerFactory {
                 faker.name().fullName(),
                 faker.country().name(),
                 "DEFENDER",
-                faker.number().numberBetween(1, 4), // low attack
-                faker.number().numberBetween(1, 6), // average midfield
-                faker.number().numberBetween(7, 10) // high defense
+                faker.number().numberBetween(10, 40), // low attack
+                faker.number().numberBetween(30, 60), // average midfield
+                faker.number().numberBetween(70, 100) // high defense
         );
     }
 
@@ -35,9 +35,9 @@ public class PlayerFactory {
                 faker.name().fullName(),
                 faker.country().name(),
                 "ATTACKER",
-                faker.number().numberBetween(7, 10), // high attack
-                faker.number().numberBetween(1, 6),
-                faker.number().numberBetween(1, 4));
+                faker.number().numberBetween(70, 100), // high attack
+                faker.number().numberBetween(30, 60),
+                faker.number().numberBetween(10, 40));
     }
 
     public static Player createMidfielder() {
@@ -45,9 +45,9 @@ public class PlayerFactory {
                 faker.name().fullName(),
                 faker.country().name(),
                 "MIDFIELDER",
-                faker.number().numberBetween(1, 6),
-                faker.number().numberBetween(7, 10), // high midfield
-                faker.number().numberBetween(1, 6));
+                faker.number().numberBetween(30, 60),
+                faker.number().numberBetween(70, 100), // high midfield
+                faker.number().numberBetween(10, 60));
     }
 
     public static Player createGoalkeeper() {
@@ -55,8 +55,8 @@ public class PlayerFactory {
                 faker.name().fullName(),
                 faker.country().name(),
                 "GOALKEEPER",
-                faker.number().numberBetween(1, 4),
-                faker.number().numberBetween(1, 4),
-                faker.number().numberBetween(7, 10)); // high defense
+                faker.number().numberBetween(50, 100),
+                faker.number().numberBetween(50, 100),
+                faker.number().numberBetween(50, 100)); // high defense
     }
 }

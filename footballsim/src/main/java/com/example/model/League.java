@@ -102,4 +102,11 @@ public class League {
         return schedule;
     }
 
+    public static void playGameWeek(List<Match> matches) {
+        for (Match match : matches) {
+            match.playMatch(match);
+            System.out.println("Match Result: " + match.getHomeTeam().getName() + " " + match.getHomeScore() + " - " +
+                    match.getAwayScore() + " " + match.getAwayTeam().getName());
+        }
+    }
 }

@@ -12,11 +12,12 @@ import com.example.model.League;
 import com.example.model.Match;
 import com.example.model.Player;
 import com.example.model.Team;
+import com.example.util.DBUtils;
 import com.example.util.SquadGenerator;
 
 public class App {
     public static void main(String[] args) {
-        resetDatabase();
+        rebuildDatabase();
     }
 
     public static void generatePremierLeagueTeams() {
@@ -50,6 +51,7 @@ public class App {
                 session.persist(team); // Use persist for new entities
                 SquadGenerator.generateSquadForTeam(team); // Populate the squad with players
                 System.out.println("Persisted team: " + team.getName());
+                team.generateAttributes(); // Generate attributes for the team
             }
 
             // Commit the transaction
@@ -73,32 +75,6 @@ public class App {
                 factory.close();
             }
             System.out.println("SessionFactory and Session closed.");
-        }
-    }
-
-    public static void clearDB() {
-        SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Player.class)
-                .addAnnotatedClass(Team.class)
-                .addAnnotatedClass(Match.class) // <--- add this
-
-                .buildSessionFactory();
-
-        try (Session session = factory.openSession()) {
-            session.beginTransaction();
-
-            session.createMutationQuery("DELETE FROM Player").executeUpdate();
-            session.createMutationQuery("DELETE FROM Team").executeUpdate();
-            session.createMutationQuery("DELETE FROM Match").executeUpdate();
-
-            // Reset sequences
-            session.createNativeQuery("ALTER SEQUENCE players_id_seq RESTART WITH 1", Void.class).executeUpdate();
-            session.createNativeQuery("ALTER SEQUENCE teams_id_seq RESTART WITH 1", Void.class).executeUpdate();
-            session.createNativeQuery("ALTER SEQUENCE matches_id_seq RESTART WITH 1", Void.class).executeUpdate();
-
-            session.getTransaction().commit();
-        } finally {
-            factory.close(); // <== important
         }
     }
 
@@ -152,8 +128,8 @@ public class App {
 
     }
 
-    public static void resetDatabase() {
-        clearDB();
+    public static void rebuildDatabase() {
+        DBUtils.clearDBPostgres();
         generatePremierLeagueTeams();
         saveFixtures();
     }

@@ -13,9 +13,9 @@
     <!-- Hibernate properties -->
     <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
     <property name="hibernate.hbm2ddl.auto">update</property> <!-- auto-creates table if not exist -->
-    <property name="hibernate.show_sql">true</property>
+    <property name="hibernate.show_sql">false</property>
 
     <!-- Mapping -->
-    <mapping class="com.example.Player"/> 
+    <mapping class="com.example.model.Player"/> 
   </session-factory>
 </hibernate-configuration>

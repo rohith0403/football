@@ -64,11 +64,6 @@ public class Player {
         // no-arg constructor required by Hibernate
     }
 
-    public Player(String name, String nationality) {
-        this.name = name;
-        this.nationality = nationality;
-    }
-
     public Player(String name, String nationality, String position) {
         this.name = name;
         this.nationality = nationality;
@@ -78,6 +73,7 @@ public class Player {
     public Player(String name, String nationality, String position, int attack, int midfield, int defense) {
         this.name = name;
         this.nationality = nationality;
+        this.position = position;
         this.attack = attack;
         this.midfield = midfield;
         this.defense = defense;
