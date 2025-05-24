@@ -1,5 +1,7 @@
 package com.example.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
@@ -46,6 +48,7 @@ public class Player {
     @ManyToOne(fetch = FetchType.LAZY) // Many players belong to one team. Lazy fetching is default and good.
     @JoinColumn(name = "team_id", nullable = true) // This creates the 'team_id' foreign key column in the 'players'
                                                    // table
+    @JsonBackReference // This prevents infinite recursion when serializing to JSON
     private Team team; // The field that holds the reference to the Team entity
 
     public Team getTeam() {

@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.example.model.League;
 import com.example.model.Match;
@@ -15,9 +17,10 @@ import com.example.model.Team;
 import com.example.util.DBUtils;
 import com.example.util.SquadGenerator;
 
+@SpringBootApplication
 public class App {
     public static void main(String[] args) {
-        rebuildDatabase();
+        SpringApplication.run(App.class, args);
     }
 
     public static void generatePremierLeagueTeams() {
