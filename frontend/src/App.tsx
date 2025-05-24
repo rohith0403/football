@@ -1,243 +1,108 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import Players from './components/Players';
+import Teams from './components/Teams';
 
-// Define the type for a single Todo item
-interface Player {
-  id: number;
-  name: string;
-  nationality: string;
-  attack: number;
-  defense: number;
-  midfield: number;
-  position: string;
-  // team: string;
-}
-
-// Define the type for sort direction
-type SortDirection = 'asc' | 'desc';
 
 /**
- * App Component
- * A functional React component that fetches and displays a sortable table of todos.
- * It uses useState for managing component state (todos, loading/error states, and sorting)
- * and useEffect for performing side effects (data fetching).
+ * HomePage Component
+ * Displays the welcome message for the Football Sim.
+ */
+const HomePage: React.FC = () => {
+  return (
+    <div className="text-center text-gray-300 text-lg p-6 bg-gray-700 rounded-lg">
+      <p className="mb-4">Welcome to your Football Simulation Hub!</p>
+      <p>Navigate using the buttons above to manage players and teams.</p>
+      <p className="mt-4 text-sm text-gray-400">
+        Explore player statistics or view team details.
+      </p>
+    </div>
+  );
+};
+
+
+/**
+ * Main App Component
+ * Integrates routing, data management, and navigation.
  */
 const App: React.FC = () => {
-  // State to store the fetched todos
-  const [players, setPlayers] = useState<Player[]>([]);
-  // State to manage the loading status
-  const [loading, setLoading] = useState<boolean>(true);
-  // State to store any error that might occur during fetching
-  const [error, setError] = useState<string | null>(null);
-  // State to store the currently sorted column key
-  const [sortColumn, setSortColumn] = useState<keyof Player | null>(null);
-  // State to store the current sort direction ('asc' for ascending, 'desc' for descending)
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
-  /**
-   * useEffect Hook for Data Fetching
-   * This hook runs once after the initial render (due to the empty dependency array `[]`).
-   * It performs the asynchronous data fetching operation.
-   */
-  useEffect(() => {
-    const fetchTodos = async () => {
-      try {
-        // Set loading to true before starting the fetch
-        setLoading(true);
-        setError(null); // Clear any previous errors
+  const navigate = useNavigate(); // Hook for programmatic navigation
 
-        // Perform the fetch request to the JSONPlaceholder API
-        const response = await fetch('http://localhost:8080/players');
-
-        // Check if the response was successful (status code 200-299)
-        if (!response.ok) {
-          // If not successful, throw an error with the status text
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        // Parse the JSON response into an array of Todo objects
-        const data: Player[] = await response.json();
-        // Update the todos state with the fetched data
-        setPlayers(data);
-      } catch (err: any) {
-        // Catch any errors during the fetch or JSON parsing and update the error state
-        setError(err.message);
-      } finally {
-        // Set loading to false once the fetch operation is complete (whether successful or not)
-        setLoading(false);
-      }
-    };
-
-    // Call the fetchTodos function
-    fetchTodos();
-  }, []); // Empty dependency array means this effect runs only once on mount
-
-  /**
-   * handleSort Function
-   * This function is called when a column header is clicked.
-   * It updates the sortColumn and sortDirection states.
-   * @param column The key of the column to sort by (e.g., 'id', 'title').
-   */
-  const handleSort = (column: keyof Player) => {
-    // If the same column is clicked, toggle the sort direction
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      // If a new column is clicked, set it as the sort column and default to ascending
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
-  };
-
-  /**
-   * useMemo Hook for Sorted Todos
-   * This memoizes the sortedTodos array. It will only re-calculate
-   * when 'todos', 'sortColumn', or 'sortDirection' change.
-   */
-  const sortedPlayers = useMemo(() => {
-    // Create a shallow copy of the todos array to avoid direct mutation
-    const sortableItems = [...players];
-
-    if (sortColumn) {
-      sortableItems.sort((a, b) => {
-        const aValue = a[sortColumn];
-        const bValue = b[sortColumn];
-
-        // Handle different data types for sorting
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          // Case-insensitive string comparison
-          return sortDirection === 'asc'
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
-        } else if (typeof aValue === 'number' && typeof bValue === 'number') {
-          // Numeric comparison
-          return sortDirection === 'asc'
-            ? aValue - bValue
-            : bValue - aValue;
-        } else if (typeof aValue === 'boolean' && typeof bValue === 'boolean') {
-          // Boolean comparison (false before true for asc)
-          return sortDirection === 'asc'
-            ? (aValue === bValue ? 0 : (aValue ? 1 : -1))
-            : (aValue === bValue ? 0 : (aValue ? -1 : 1));
-        }
-        // Fallback for other types or mixed types (shouldn't happen with Todo interface)
-        return 0;
-      });
-    }
-    return sortableItems;
-  }, [players, sortColumn, sortDirection]); // Dependencies for memoization
-
-  // Helper function to render sort indicator
-  const renderSortIndicator = (column: keyof Player) => {
-    if (sortColumn === column) {
-      return sortDirection === 'asc' ? ' ▲' : ' ▼'; // Up or down arrow
-    }
-    return ''; // No indicator
-  };
-
-  // Render the component UI
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4 font-sans"> {/* Darker background */}
-      <div className="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-4xl"> {/* Darker card background */}
-        <h1 className="text-3xl font-bold text-center text-gray-100 mb-6"> {/* Lighter text */}
-          Players
+    // Wrap the entire application content with Router for routing to work
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 font-sans">
+      <div className="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-screen-lg border border-gray-700">
+        <h1 className="text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-10 drop-shadow-lg">
+          Welcome to Football Sim
         </h1>
 
-        {loading && (
-          <div className="text-center text-blue-400 text-lg"> {/* Adjusted blue for dark mode */}
-            Loading players...
-          </div>
-        )}
+        {/* Navigation Buttons */}
+        <div className="flex flex-wrap justify-center gap-6 mb-10">
+          <button
+            onClick={() => {
+              navigate('/'); // Navigate to home after reset
+            }}
+            className="flex items-center px-8 py-4 bg-gradient-to-r from-red-700 to-red-900 text-white font-bold text-lg rounded-full shadow-lg hover:from-red-800 hover:to-red-950 focus:outline-none focus:ring-4 focus:ring-red-600 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            {/* Database Reset Icon */}
+            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7v10c0 .552.448 1 1 1h14c.552 0 1-.448 1-1V7m-4 0V4a2 2 0 00-2-2H8a2 2 0 00-2 2v3m4 0h4m-4 0h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"></path>
+            </svg>
+            Reset Database
+          </button>
+          <button
+            onClick={() => navigate('/players')} // Navigate to /players route
+            className={`flex items-center px-8 py-4 font-bold text-lg rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105 ${
+              window.location.pathname === '/players'
+                ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white'
+                : 'bg-gradient-to-r from-blue-800 to-blue-900 text-gray-200 hover:from-blue-700 hover:to-blue-850'
+            }`}
+          >
+            {/* Player Icon (User) */}
+            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            View Players
+          </button>
+          <button
+            onClick={() => navigate('/teams')} // Navigate to /teams route
+            className={`flex items-center px-8 py-4 font-bold text-lg rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105 ${
+              window.location.pathname === '/teams'
+                ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white'
+                : 'bg-gradient-to-r from-blue-800 to-blue-900 text-gray-200 hover:from-blue-700 hover:to-blue-850'
+            }`}
+          >
+            {/* Team Icon (Users Group) */}
+            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h2a2 2 0 002-2V7a2 2 0 00-2-2h-3v4l-3-3-3 3V5H5a2 2 0 00-2 2v11a2 2 0 002 2h2M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zm-4 0v-2a4 4 0 014-4h0a4 4 0 014 4v2m-4-2h.01"></path>
+            </svg>
+            View Teams
+          </button>
+        </div>
 
-        {error && (
-          <div className="text-center text-red-400 text-lg"> {/* Adjusted red for dark mode */}
-            Error: {error}
-          </div>
-        )}
-
-        {!loading && !error && (
-          <div className="overflow-x-auto"> {/* Added for responsive table scrolling */}
-            <table className="min-w-full bg-gray-700 border border-gray-600 rounded-md"> {/* Darker table background and border */}
-              <thead>
-                <tr className="bg-gray-600 border-b border-gray-500"> {/* Darker header background and border */}
-                  <th
-                    className="py-3 px-4 text-left text-sm font-semibold text-gray-200 uppercase tracking-wider rounded-tl-lg cursor-pointer hover:bg-gray-500"
-                    onClick={() => handleSort('id')}
-                  >
-                    ID {renderSortIndicator('id')}
-                  </th>
-                  <th
-                    className="py-3 px-4 text-left text-sm font-semibold text-gray-200 uppercase tracking-wider cursor-pointer hover:bg-gray-500"
-                    onClick={() => handleSort('name')}
-                  >
-                    Name {renderSortIndicator('name')}
-                  </th>
-                  <th
-                    className="py-3 px-4 text-left text-sm font-semibold text-gray-200 uppercase tracking-wider cursor-pointer hover:bg-gray-500"
-                    onClick={() => handleSort('nationality')}
-                  >
-                    Nationality {renderSortIndicator('nationality')}
-                  </th>
-                  <th
-                    className="py-3 px-4 text-left text-sm font-semibold text-gray-200 uppercase tracking-wider cursor-pointer hover:bg-gray-500"
-                    onClick={() => handleSort('attack')}
-                  >
-                    Attack {renderSortIndicator('attack')}
-                  </th>
-                  <th
-                    className="py-3 px-4 text-left text-sm font-semibold text-gray-200 uppercase tracking-wider cursor-pointer hover:bg-gray-500"
-                    onClick={() => handleSort('defense')}
-                  >
-                    Defense {renderSortIndicator('defense')}
-                  </th>
-                  <th
-                    className="py-3 px-4 text-left text-sm font-semibold text-gray-200 uppercase tracking-wider cursor-pointer hover:bg-gray-500"
-                    onClick={() => handleSort('midfield')}
-                  >
-                    Midfield {renderSortIndicator('midfield')}
-                  </th>
-
-                  <th
-                    className="py-3 px-4 text-left text-sm font-semibold text-gray-200 uppercase tracking-wider rounded-tr-lg cursor-pointer hover:bg-gray-500"
-                    onClick={() => handleSort('position')}
-                  >
-                    Position {renderSortIndicator('position')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Map over the sortedTodos array and render each todo item as a table row */}
-                {sortedPlayers.map((player) => (
-                  <tr key={player.id} className="border-b border-gray-600 last:border-b-0 hover:bg-gray-600"> {/* Darker row border and hover effect */}
-                    <td className="py-3 px-4 text-sm text-gray-300"> {/* Lighter row text */}
-                      {player.id}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-300"> {/* Lighter row text */}
-                      {player.name}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-300"> {/* Lighter row text */}
-                      {player.nationality}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-300"> {/* Lighter row text */}
-                      {player.attack}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-300"> {/* Lighter row text */}
-                      {player.defense}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-300"> {/* Lighter row text */}
-                      {player.midfield}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-300"> {/* Lighter row text */}
-                      {player.position}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        {/* Define Routes */}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          {/* <Route path="/players" element={<PlayersPage players={players} initializeData={initializeData} />} /> */}
+          <Route path="/teams" element={<Teams/>} />
+          <Route path="/players" element={<Players/>} />
+          
+          {/* Fallback for any unmatched routes */}
+          <Route path="*" element={<div className="text-center text-red-400 text-xl font-medium py-8">404 - Page Not Found</div>} />
+        </Routes>
       </div>
     </div>
   );
 };
 
-export default App;
+// Main component that wraps App with Router. This is crucial for routing to work.
+// In a typical React setup, this would be in index.tsx or main.tsx.
+// For self-contained immersive, we'll nest it here.
+const RootApp: React.FC = () => (
+  <Router>
+    <App />
+  </Router>
+);
+
+export default RootApp;

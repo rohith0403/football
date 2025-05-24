@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.model.Team;
 import com.example.service.TeamService;
+import com.example.service.TeamService.TeamSummary;
 
 @RestController
 @RequestMapping("/teams")
@@ -20,7 +20,7 @@ public class TeamController {
     }
 
     @GetMapping
-    public List<Team> getAllTeams() {
-        return teamService.getAllTeams();
+    public List<TeamSummary> getAllTeams() {
+        return teamService.getTeamSummaries();
     }
 }

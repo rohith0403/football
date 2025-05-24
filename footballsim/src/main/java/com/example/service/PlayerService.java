@@ -1,7 +1,8 @@
 package com.example.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.model.Player;
@@ -16,7 +17,8 @@ public class PlayerService {
         this.playerRepository = playerRepository;
     }
 
-    public List<Player> getAllPlayers() {
-        return playerRepository.findAll();
+    public Page<Player> getAllPlayers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return playerRepository.findAll(pageable);
     }
 }
