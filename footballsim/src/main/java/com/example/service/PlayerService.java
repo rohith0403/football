@@ -1,5 +1,7 @@
 package com.example.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,5 +22,13 @@ public class PlayerService {
     public Page<Player> getAllPlayers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return playerRepository.findAll(pageable);
+    }
+
+    public List<Player> getPlayersByName(String name) {
+        return playerRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    public List<Player> getPlayersByNationality(String name) {
+        return playerRepository.findByNationalityContainingIgnoreCase(name);
     }
 }

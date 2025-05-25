@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 // Define the type for a single Todo item
 interface TeamSummary {
@@ -7,25 +7,19 @@ interface TeamSummary {
   league: string;
 }
 
-// Define the type for sort direction
 type SortDirection = 'asc' | 'desc';
 
 /**
  * Teams Component
- * A functional React component that fetches and displays a sortable table of todos.
- * It uses useState for managing component state (todos, loading/error states, and sorting)
+ * A functional React component that fetches and displays a sortable table of teams.
+ * It uses useState for managing component state (teams, loading/error states, and sorting)
  * and useEffect for performing side effects (data fetching).
  */
 const Teams: React.FC = () => {
-  // State to store the fetched todos
   const [teamSummary, setTeamSummary] = useState<TeamSummary[]>([]);
-  // State to manage the loading status
   const [loading, setLoading] = useState<boolean>(true);
-  // State to store any error that might occur during fetching
   const [error, setError] = useState<string | null>(null);
-  // State to store the currently sorted column key
   const [sortColumn, setSortColumn] = useState<keyof TeamSummary | null>(null);
-  // State to store the current sort direction ('asc' for ascending, 'desc' for descending)
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   /**
@@ -34,36 +28,27 @@ const Teams: React.FC = () => {
    * It performs the asynchronous data fetching operation.
    */
   useEffect(() => {
-    const fetchTodos = async () => {
+    const fetchTeams = async () => {
       try {
-        // Set loading to true before starting the fetch
         setLoading(true);
         setError(null); // Clear any previous errors
+        const response = await fetch('http://localhost:8080/teams');
 
-        // Perform the fetch request to the JSONPlaceholder API
-        const response = await fetch('http://localhost:8080/players');
-
-        // Check if the response was successful (status code 200-299)
         if (!response.ok) {
-          // If not successful, throw an error with the status text
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         // Parse the JSON response into an array of Todo objects
         const data: TeamSummary[] = await response.json();
-        // Update the todos state with the fetched data
         setTeamSummary(data);
       } catch (err: any) {
-        // Catch any errors during the fetch or JSON parsing and update the error state
         setError(err.message);
       } finally {
-        // Set loading to false once the fetch operation is complete (whether successful or not)
         setLoading(false);
       }
     };
 
-    // Call the fetchTodos function
-    fetchTodos();
+    // Call the fetchTeams function
+    fetchTeams();
   }, []); // Empty dependency array means this effect runs only once on mount
 
   /**
@@ -84,37 +69,29 @@ const Teams: React.FC = () => {
   };
 
   /**
-   * useMemo Hook for Sorted Todos
-   * This memoizes the sortedTodos array. It will only re-calculate
-   * when 'todos', 'sortColumn', or 'sortDirection' change.
+   * useMemo Hook for Sorted Teams
+   * This memoizes the sortedTeams array. It will only re-calculate
+   * when 'teams', 'sortColumn', or 'sortDirection' change.
    */
-  const sortedPlayers = useMemo(() => {
-    // Create a shallow copy of the todos array to avoid direct mutation
+  const sortedTeams = useMemo(() => {
     const sortableItems = [...teamSummary];
-
     if (sortColumn) {
       sortableItems.sort((a, b) => {
         const aValue = a[sortColumn];
         const bValue = b[sortColumn];
-
-        // Handle different data types for sorting
         if (typeof aValue === 'string' && typeof bValue === 'string') {
-          // Case-insensitive string comparison
           return sortDirection === 'asc'
             ? aValue.localeCompare(bValue)
             : bValue.localeCompare(aValue);
         } else if (typeof aValue === 'number' && typeof bValue === 'number') {
-          // Numeric comparison
           return sortDirection === 'asc'
             ? aValue - bValue
             : bValue - aValue;
         } else if (typeof aValue === 'boolean' && typeof bValue === 'boolean') {
-          // Boolean comparison (false before true for asc)
           return sortDirection === 'asc'
             ? (aValue === bValue ? 0 : (aValue ? 1 : -1))
             : (aValue === bValue ? 0 : (aValue ? -1 : 1));
         }
-        // Fallback for other types or mixed types (shouldn't happen with Todo interface)
         return 0;
       });
     }
@@ -134,12 +111,12 @@ const Teams: React.FC = () => {
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4 font-sans"> {/* Darker background */}
       <div className="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-4xl"> {/* Darker card background */}
         <h1 className="text-3xl font-bold text-center text-gray-100 mb-6"> {/* Lighter text */}
-          Players
+          Teams
         </h1>
 
         {loading && (
           <div className="text-center text-blue-400 text-lg"> {/* Adjusted blue for dark mode */}
-            Loading players...
+            Loading teams...
           </div>
         )}
 
@@ -175,17 +152,17 @@ const Teams: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {/* Map over the sortedTodos array and render each todo item as a table row */}
-                {sortedPlayers.map((player) => (
-                  <tr key={player.id} className="border-b border-gray-600 last:border-b-0 hover:bg-gray-600"> {/* Darker row border and hover effect */}
+                {/* Map over the sortedTeams array and render each todo item as a table row */}
+                {sortedTeams.map((team) => (
+                  <tr key={team.id} className="border-b border-gray-600 last:border-b-0 hover:bg-gray-600"> {/* Darker row border and hover effect */}
                     <td className="py-3 px-4 text-sm text-gray-300"> {/* Lighter row text */}
-                      {player.id}
+                      {team.id}
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-300"> {/* Lighter row text */}
-                      {player.name}
+                      {team.name}
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-300"> {/* Lighter row text */}
-                      {player.league}
+                      {team.league}
                     </td>
                   </tr>
                 ))}

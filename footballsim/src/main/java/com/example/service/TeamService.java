@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.dto.TeamSummary;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
@@ -14,19 +16,6 @@ public class TeamService {
 
     @PersistenceContext
     private EntityManager entityManager;
-
-    // DTO class inside the service to hold limited data (id and name only)
-    public static class TeamSummary {
-        private Long id;
-        private String name;
-        private String league;
-
-        public TeamSummary(Long id, String name, String league) {
-            this.id = id;
-            this.name = name;
-            this.league = league;
-        }
-    }
 
     public List<TeamSummary> getTeamSummaries() {
         // Native query selecting only id and name columns

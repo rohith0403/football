@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import Players from './components/Players';
-import Teams from './components/Teams';
+import React from 'react';
+import { Route, BrowserRouter as Router, Routes, useNavigate } from 'react-router-dom';
+import Players from './components/Players'; // Adjust the import path as necessary
+import Teams from './components/Teams'; // Adjust the import path as necessarys
 
 
 /**
@@ -12,7 +12,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="text-center text-gray-300 text-lg p-6 bg-gray-700 rounded-lg">
       <p className="mb-4">Welcome to your Football Simulation Hub!</p>
-      <p>Navigate using the buttons above to manage players and teams.</p>
+      <p>Navigate using the buttons above or to the left to manage players and teams.</p>
       <p className="mt-4 text-sm text-gray-400">
         Explore player statistics or view team details.
       </p>
@@ -27,68 +27,70 @@ const HomePage: React.FC = () => {
  */
 const App: React.FC = () => {
 
-  const navigate = useNavigate(); // Hook for programmatic navigation
+  // useNavigate is still used for the "Reset Database" button as it performs an action
+  // that also involves navigation, but it's not a direct link to a content page.
+  const navigate = useNavigate();
 
   return (
-    // Wrap the entire application content with Router for routing to work
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 font-sans">
-      <div className="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-screen-lg border border-gray-700">
-        <h1 className="text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-10 drop-shadow-lg">
+    // The outermost container sets up the full screen background and centers its content.
+    // It now contains the main app frame (sidebar) and the routed content as siblings.
+    <div className="min-h-screen bg-gray-900 flex flex-col md:flex-row p-4 font-sans">
+      {/* Main App Frame: Contains the title and sidebar */}
+      <div className="bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 md:w-1/4 lg:w-1/5 mb-10 md:mb-0 md:mr-10 flex flex-col items-center">
+
+        {/* Title for smaller screens (hidden on medium and larger screens). */}
+        <h1 className="text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-10 drop-shadow-lg md:hidden">
           Welcome to Football Sim
         </h1>
 
-        {/* Navigation Buttons */}
-        <div className="flex flex-wrap justify-center gap-6 mb-10">
+        {/* Title for medium and larger screens (hidden on small screens). */}
+        <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-6 drop-shadow-lg hidden md:block">
+          Football Sim
+        </h1>
+
+        {/* Sidebar Navigation Buttons */}
+        <div className="flex flex-wrap justify-center gap-6 md:flex-col w-full">
+          {/* Reset Database Button - remains a button as it's an action */}
           <button
             onClick={() => {
-              navigate('/'); // Navigate to home after reset
+              navigate('/');
             }}
-            className="flex items-center px-8 py-4 bg-gradient-to-r from-red-700 to-red-900 text-white font-bold text-lg rounded-full shadow-lg hover:from-red-800 hover:to-red-950 focus:outline-none focus:ring-4 focus:ring-red-600 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+            className="flex items-center justify-center px-6 py-3 bg-transparent text-gray-400 font-medium text-base rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-75 transition duration-300 ease-in-out w-full md:w-auto"
           >
-            {/* Database Reset Icon */}
-            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7v10c0 .552.448 1 1 1h14c.552 0 1-.448 1-1V7m-4 0V4a2 2 0 00-2-2H8a2 2 0 00-2 2v3m4 0h4m-4 0h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"></path>
-            </svg>
-            Reset Database
+            Home
           </button>
-          <button
-            onClick={() => navigate('/players')} // Navigate to /players route
-            className={`flex items-center px-8 py-4 font-bold text-lg rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105 ${
-              window.location.pathname === '/players'
-                ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white'
-                : 'bg-gradient-to-r from-blue-800 to-blue-900 text-gray-200 hover:from-blue-700 hover:to-blue-850'
-            }`}
-          >
-            {/* Player Icon (User) */}
-            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-            </svg>
-            View Players
-          </button>
-          <button
-            onClick={() => navigate('/teams')} // Navigate to /teams route
-            className={`flex items-center px-8 py-4 font-bold text-lg rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105 ${
-              window.location.pathname === '/teams'
-                ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white'
-                : 'bg-gradient-to-r from-blue-800 to-blue-900 text-gray-200 hover:from-blue-700 hover:to-blue-850'
-            }`}
-          >
-            {/* Team Icon (Users Group) */}
-            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h2a2 2 0 002-2V7a2 2 0 00-2-2h-3v4l-3-3-3 3V5H5a2 2 0 00-2 2v11a2 2 0 002 2h2M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zm-4 0v-2a4 4 0 014-4h0a4 4 0 014 4v2m-4-2h.01"></path>
-            </svg>
-            View Teams
-          </button>
-        </div>
 
-        {/* Define Routes */}
+          {/* View Players Link - now an <a> tag with simplified styling */}
+          <a
+            href="/players" // Use href for navigation
+            className={`flex items-center justify-center px-6 py-3 font-medium text-base rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-75 transition duration-300 ease-in-out w-full md:w-auto ${window.location.pathname === '/players'
+              ? 'bg-blue-700 text-white'
+              : 'bg-transparent text-gray-400 hover:bg-gray-700'
+              }`}
+          >
+            View Players
+          </a>
+
+          {/* View Teams Link - now an <a> tag with simplified styling */}
+          <a
+            href="/teams" // Use href for navigation
+            className={`flex items-center justify-center px-6 py-3 font-medium text-base rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-75 transition duration-300 ease-in-out w-full md:w-auto ${window.location.pathname === '/teams'
+              ? 'bg-blue-700 text-white'
+              : 'bg-transparent text-gray-400 hover:bg-gray-700'
+              }`}
+          >
+            View Teams
+          </a>
+        </div>
+      </div>
+
+      {/* The Routes component is now a sibling, allowing it to render full-page components */}
+      <div className="flex-1 flex items-center justify-center"> {/* Added flex-1 and centering for routed content */}
         <Routes>
           <Route path="/" element={<HomePage />} />
-          {/* <Route path="/players" element={<PlayersPage players={players} initializeData={initializeData} />} /> */}
-          <Route path="/teams" element={<Teams/>} />
-          <Route path="/players" element={<Players/>} />
-          
-          {/* Fallback for any unmatched routes */}
+          <Route path="/teams" element={<Teams />} />
+          <Route path="/players" element={<Players />} />
+
           <Route path="*" element={<div className="text-center text-red-400 text-xl font-medium py-8">404 - Page Not Found</div>} />
         </Routes>
       </div>
@@ -96,9 +98,6 @@ const App: React.FC = () => {
   );
 };
 
-// Main component that wraps App with Router. This is crucial for routing to work.
-// In a typical React setup, this would be in index.tsx or main.tsx.
-// For self-contained immersive, we'll nest it here.
 const RootApp: React.FC = () => (
   <Router>
     <App />

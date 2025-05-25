@@ -1,5 +1,7 @@
 package com.example.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,4 +27,17 @@ public class PlayerController {
             @RequestParam(defaultValue = "10") int size) {
         return playerService.getAllPlayers(page, size);
     }
+
+    // GET /players/by-name?name=Messi
+    @GetMapping("/name")
+    public List<Player> getPlayersByName(@RequestParam String name) {
+        return playerService.getPlayersByName(name);
+    }
+
+    // GET /players/by-nationality?nationality=Argentina
+    @GetMapping("/nationality")
+    public List<Player> getPlayersByNationality(@RequestParam String nationality) {
+        return playerService.getPlayersByNationality(nationality);
+    }
+
 }
